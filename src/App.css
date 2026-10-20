@@ -121,6 +121,8 @@ nav a:hover {
 }
 
 section {
+  position: relative;
+  z-index: 1;
   max-width: 1000px;
   margin: 0 auto;
   padding: 70px 20px;
@@ -131,10 +133,13 @@ h1 {
   line-height: 1.1;
   text-align: center;
   margin: 0 0 20px;
-  background: linear-gradient(90deg, #ffffff, #a1a1aa, #52525b);
+  background: linear-gradient(100deg, #ffffff 0%, #d4d4d8 30%, #ffffff 50%, #b4b4bb 72%, #f4f4f5 100%);
+  background-size: 220% 100%;
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
+  -webkit-text-fill-color: transparent;
+  animation: shine 9s ease-in-out infinite alternate;
 }
 
 h2 {
@@ -156,7 +161,6 @@ h2 {
   justify-content: center;
   align-items: center;
   text-align: center;
-  background: radial-gradient(ellipse at 80% 10%, #1c1c1c 0, transparent 55%);
 }
 
 /* каскадное появление первого экрана */
@@ -1075,7 +1079,9 @@ header.side .brand {
 }
 
 .main {
+  position: relative;
   margin-left: 240px;
+  overflow-x: clip;
 }
 
 .lp-item {
@@ -1348,4 +1354,366 @@ header.side .brand {
     transition-duration: 0.01ms !important;
     transition-delay: 0s !important;
   }
+}
+/* ===== Фон первого экрана на всю ширину (исправление обрезанного градиента) ===== */
+
+.glow,
+.embers {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: max(110vh, 780px);
+  pointer-events: none;
+  z-index: 0;
+  -webkit-mask-image: linear-gradient(#000 62%, transparent);
+  mask-image: linear-gradient(#000 62%, transparent);
+}
+
+.glow {
+  background:
+    radial-gradient(ellipse 55% 45% at 80% 6%, #262626 0, transparent 70%),
+    radial-gradient(ellipse 45% 40% at 18% 78%, rgba(255, 98, 32, 0.14) 0, transparent 70%),
+    radial-gradient(ellipse 35% 30% at 55% 100%, rgba(255, 150, 40, 0.08) 0, transparent 70%);
+  animation: breathe 7s ease-in-out infinite alternate;
+}
+
+@keyframes breathe {
+  from { opacity: 0.75; }
+  to { opacity: 1; }
+}
+
+@keyframes shine {
+  from { background-position: 0% 50%; }
+  to { background-position: 100% 50%; }
+}
+
+/* полоса прогресса прокрутки */
+.prog {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  z-index: 50;
+  transform-origin: 0 50%;
+  background: linear-gradient(90deg, #ffffff, #ff9a3c, #ff4a1c);
+  box-shadow: 0 0 12px rgba(255, 110, 40, 0.7);
+  pointer-events: none;
+}
+
+/* «тлеющая» точка у заголовков секций */
+section:not(#home) h2::before {
+  content: "";
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  margin-right: 14px;
+  border-radius: 50%;
+  vertical-align: middle;
+  background: #ff6a2b;
+  box-shadow: 0 0 14px #ff6a2b;
+  animation: ember 2.6s ease-in-out infinite;
+}
+
+@keyframes ember {
+  0%, 100% { opacity: 0.55; transform: scale(0.8); }
+  50% { opacity: 1; transform: scale(1.15); }
+}
+
+/* ===== Карта ===== */
+
+.map-ctl {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+  justify-content: space-between;
+  margin: 6px 0 0;
+}
+
+.mo-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.mo-row button {
+  background: #161616;
+  color: var(--mu);
+  border: 0;
+  border-radius: 8px;
+  padding: 7px 11px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  touch-action: manipulation;
+  transition: all 0.25s var(--ease);
+}
+
+.mo-row button:hover {
+  background: #262626;
+  color: #fff;
+}
+
+.mo-row button.on {
+  background: linear-gradient(135deg, #ffb347, #ff5a1f);
+  color: #000;
+  box-shadow: 0 0 16px rgba(255, 100, 30, 0.45);
+}
+
+.loc-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: #fff;
+  color: #000;
+  border: 0;
+  border-radius: 10px;
+  padding: 10px 16px;
+  font-weight: 700;
+  font-size: 13px;
+  cursor: pointer;
+  transition: transform 0.2s var(--ease), box-shadow 0.3s var(--ease), opacity 0.2s;
+}
+
+.loc-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 22px rgba(255, 255, 255, 0.18);
+}
+
+.loc-btn:disabled {
+  opacity: 0.6;
+  cursor: progress;
+}
+
+.map-card {
+  position: relative;
+  padding: 0;
+  overflow: hidden;
+}
+
+.map-box {
+  height: 480px;
+  width: 100%;
+  background: #0a0a0a;
+}
+
+.map-leg {
+  position: absolute;
+  left: 12px;
+  bottom: 12px;
+  z-index: 500;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 12px;
+  align-items: center;
+  max-width: calc(100% - 90px);
+  padding: 8px 12px;
+  background: rgba(8, 8, 8, 0.82);
+  border: 1px solid #2a2a2a;
+  border-radius: 10px;
+  font-size: 11px;
+  color: var(--mu);
+  backdrop-filter: blur(6px);
+}
+
+.map-leg i {
+  font-style: normal;
+  display: inline-flex;
+  align-items: center;
+}
+
+.map-leg b {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  margin-right: 5px;
+}
+
+/* тёмная карта из светлых тайлов OSM: инверсия только слоя плиток, маркеры не трогаем */
+.map-box .leaflet-tile-pane {
+  filter: invert(1) hue-rotate(180deg) brightness(0.85) contrast(0.9) saturate(0.35);
+}
+
+.leaflet-container {
+  font-family: inherit;
+  background: #0a0a0a;
+}
+
+.leaflet-control-zoom a {
+  background: #111 !important;
+  color: #fff !important;
+  border-color: #2a2a2a !important;
+}
+
+.leaflet-control-attribution {
+  background: rgba(0, 0, 0, 0.6) !important;
+  color: #71717a !important;
+  font-size: 10px;
+}
+
+.leaflet-control-attribution a {
+  color: #a1a1aa !important;
+}
+
+.fp-wrap {
+  background: none;
+  border: 0;
+}
+
+.fp {
+  position: relative;
+  display: block;
+  border-radius: 50%;
+}
+
+.fp.lv0 { background: #52525b; box-shadow: 0 0 6px #52525b; }
+.fp.lv1 { background: #f5c542; box-shadow: 0 0 12px #f5c542; }
+.fp.lv2 { background: #ff7a2f; box-shadow: 0 0 16px #ff7a2f; }
+.fp.lv3 { background: #ff3b1f; box-shadow: 0 0 20px #ff3b1f; }
+
+.fp.lv2::after,
+.fp.lv3::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 2px solid currentColor;
+  animation: ping 2s ease-out infinite;
+}
+
+.fp.lv2 { color: #ff7a2f; }
+.fp.lv3 { color: #ff3b1f; }
+.fp.lv3::after { animation-duration: 1.3s; }
+
+@keyframes ping {
+  0% { transform: scale(1); opacity: 0.9; }
+  100% { transform: scale(3.2); opacity: 0; }
+}
+
+.me {
+  position: relative;
+  display: block;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #3b9cff;
+  border: 3px solid #fff;
+  box-shadow: 0 0 0 0 rgba(59, 156, 255, 0.6);
+  animation: mepulse 2s ease-out infinite;
+}
+
+@keyframes mepulse {
+  0% { box-shadow: 0 0 0 0 rgba(59, 156, 255, 0.6); }
+  100% { box-shadow: 0 0 0 22px rgba(59, 156, 255, 0); }
+}
+
+.leaflet-tooltip.fp-tip {
+  background: #0d0d11;
+  color: #e4e4e7;
+  border: 1px solid #2a2a30;
+  border-radius: 10px;
+  padding: 8px 12px;
+  font-size: 12px;
+  line-height: 1.5;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.8);
+}
+
+.leaflet-tooltip.fp-tip b {
+  color: #fff;
+}
+
+.leaflet-tooltip-top.fp-tip::before {
+  border-top-color: #2a2a30;
+}
+
+.note.warn {
+  border-color: #6b3a1c;
+  color: #ffc9a3;
+}
+
+.me-card {
+  margin-top: 18px;
+}
+
+.me-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.me-row small {
+  color: var(--mu);
+}
+
+.me-row h3 {
+  font-size: 22px;
+  margin: 2px 0;
+}
+
+.gauge {
+  position: relative;
+  width: 110px;
+  height: 110px;
+}
+
+.gv {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  line-height: 1.1;
+}
+
+.gv b {
+  font: 700 28px monospace;
+}
+
+.gv small {
+  font-size: 10px;
+}
+
+.toprisk {
+  margin-top: 14px;
+  display: grid;
+  gap: 10px;
+}
+
+.tr-row {
+  display: grid;
+  grid-template-columns: minmax(110px, 190px) 1fr 34px;
+  align-items: center;
+  gap: 12px;
+  font-size: 13px;
+  color: var(--mu);
+}
+
+.tr-row b {
+  font: 12px monospace;
+  color: #fff;
+  text-align: right;
+}
+
+.tr-bar {
+  height: 8px;
+  background: #161616;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.tr-bar i {
+  display: block;
+  height: 100%;
+  border-radius: 6px;
+  transition: width 0.7s var(--ease), background 0.3s;
+}
+
+@media (max-width: 600px) {
+  .map-box { height: 380px; }
+  .tr-row { grid-template-columns: 96px 1fr 30px; }
 }

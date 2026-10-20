@@ -4,7 +4,7 @@ export const V = '#71717a'; // VIIRS — серый
 
 export const T = {
   ru: {
-    nav: ["Главная", "Абстракт", "Регионы", "Динамика", "Высоты", "Покров", "Инфраструктура", "Гармонизация", "Сравнение", "Выводы"],
+    nav: ["Главная", "Абстракт", "Регионы", "Карта", "Динамика", "Высоты", "Покров", "Инфраструктура", "Гармонизация", "Сравнение", "Выводы"],
     h1: "Пространственно-временной анализ пожарной активности в Казахстане",
     h2: "Комплексное исследование по данным MODIS и VIIRS за 2001–2024 гг. с использованием спутниковых данных NASA FIRMS",
     s: ["Точек MODIS (2001–2024)", "Точек VIIRS (2012–2024)", "км² территории"],
@@ -60,7 +60,7 @@ export const T = {
     mo: ["Янв", "Фев", "Мар", "Апр", "Май", "Июн", "Июл", "Авг", "Сен", "Окт", "Ноя", "Дек"]
   },
   en: {
-    nav: ["Home", "Abstract", "Regions", "Dynamics", "Elevation", "Land cover", "Infrastructure", "Harmonization", "Comparison", "Conclusions"],
+    nav: ["Home", "Abstract", "Regions", "Map", "Dynamics", "Elevation", "Land cover", "Infrastructure", "Harmonization", "Comparison", "Conclusions"],
     h1: "Spatio-temporal analysis of fire activity in Kazakhstan",
     h2: "Study of MODIS and VIIRS data for 2001–2024 using NASA FIRMS satellite data",
     s: ["MODIS points (2001–2024)", "VIIRS points (2012–2024)", "km² of territory"],
@@ -144,3 +144,16 @@ export const C = [
   ["Франция", 0.05],
   ["Германия", 0.02]
 ];
+// Английские названия для переключателя языка
+export const CN = {
+  "Ангола": "Angola", "Замбия": "Zambia", "Мозамбик": "Mozambique", "Боливия": "Bolivia",
+  "Парагвай": "Paraguay", "Казахстан": "Kazakhstan", "Испания": "Spain", "Турция": "Türkiye",
+  "ЮАР": "South Africa", "Украина": "Ukraine", "Португалия": "Portugal", "Италия": "Italy",
+  "Греция": "Greece", "Франция": "France", "Германия": "Germany"
+};
+export const CLE = ["Wetlands", "Cropland", "Grassland", "Built-up", "Shrubland", "Forest", "Water", "Sparse veg."];
+export const RE = {
+  "СКО": "NKO", "КОС": "KST", "АКМ": "AKM", "ЗКО": "WKO", "ПВЛ": "PVL", "АКТ": "AKT", "АБА": "ABA",
+  "АЛМ": "ALM", "ШЫМ": "SHY", "КРГ": "KRG", "КЗО": "KZY", "АСТ": "AST", "ЖАМ": "ZHM", "ЖЕТ": "ZHT",
+  "УЛЫ": "ULY", "ВКО": "EKO", "ТУР": "TUR", "АТР": "ATR", "АЛГ": "ALG", "МАН": "MAN"
+};

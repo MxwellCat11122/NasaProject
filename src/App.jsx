@@ -1,5 +1,8 @@
 import { useState, useMemo, useEffect, useLayoutEffect, useRef } from 'react';
-import { M, V, T, R, Y, MY, VY, MM, VM, CL, CM, CV, C } from './data';
+import { M, V, T, R, Y, MY, VY, MM, VM, CL, CM, CV, C, CN, CLE, RE } from './data';
+import MapSection from './Mapsection';
+import { MT } from './mapdata';
+import { Embers, Progress, CountUp } from './Fx';
 import './App.css';
 
 // Браузер не должен сам восстанавливать позицию прокрутки при обновлении
@@ -66,7 +69,7 @@ const Legend = ({ m = 1, v = 1 }) => (
   </div>
 );
 
-const Bars = ({ labels, series, max, rot, fmt = x => x }) => {
+const Bars = ({ labels, series, max, rot, fmt = x => x, vl = "Значение" }) => {
   const [hoveredIndex, setHoveredIndex] = useState(null);
   const [ready, setReady] = useState(false);
   const ref = useRef(null);
@@ -113,7 +116,7 @@ const Bars = ({ labels, series, max, rot, fmt = x => x }) => {
             <div className="bar-tooltip-row" key={j}>
               <span style={{ color: s.c, fontWeight: "600", display: "flex", alignItems: "center", gap: "6px" }}>
                 <span style={{ width: "7px", height: "7px", borderRadius: "50%", background: s.c, display: "inline-block" }}></span>
-                {series.length === 1 ? "Значение" : j === 0 ? "MODIS" : "VIIRS"}
+                {series.length === 1 ? vl : j === 0 ? "MODIS" : "VIIRS"}
               </span>
               <b>{fmt(s.v[hoveredIndex])}</b>
             </div>
@@ -245,10 +248,12 @@ const Select = ({ options, value, onChange }) => {
   );
 };
 
-function Line() {
+function Line({ l }) {
   const [hoveredIndex, setHoveredIndex] = useState(null);
 
-  const L = ["0 м", "500 м", "1 км", "2 км", "5 км", "10 км", ">10 км"];
+  const L = l === "en"
+    ? ["0 m", "500 m", "1 km", "2 km", "5 km", "10 km", ">10 km"]
+    : ["0 м", "500 м", "1 км", "2 км", "5 км", "10 км", ">10 км"];
   const Vv = [2.497, 0.53, 0.6, 0.59, 0.71, 0.6, 0.37];
   const Mm = [0.36, 0.435, 0.48, 0.5, 0.47, 0.515, 0.27];
   const X = i => 50 + i * 100;
@@ -495,6 +500,7 @@ export default function App() {
   const [cv, scv] = useState("B");
   const [open, so] = useState(false);
   const [activeCountry, setActiveCountry] = useState(null);
+  const [mapMonth, setMapMonth] = useState(new Date().getMonth());
 
   const reg = useMemo(
     () =>
@@ -506,7 +512,7 @@ export default function App() {
     [rm, rs]
   );
 
-  const ids = ["home", "abs", "reg", "dyn", "alt", "cov", "inf", "harm", "cmp", "out"];
+  const ids = ["home", "abs", "reg", "map", "dyn", "alt", "cov", "inf", "harm", "cmp", "out"];
   const cs = [];
   if (cv !== "V") cs.push({ v: CM, c: M });
   if (cv !== "M") cs.push({ v: CV, c: V });
@@ -522,15 +528,16 @@ export default function App() {
 
   return (
     <div>
+      <Progress />
       <header className={"side" + (open ? " open" : "")}>
-        <div className="brand">Лаборатория космического мониторинга ЧС</div>
+        <div className="brand">{l === "en" ? "Space Emergency Monitoring Lab" : "Лаборатория космического мониторинга ЧС"}</div>
         <button className="burger" onClick={() => so(!open)}>
           {open ? "✕" : "☰"}
         </button>
         <div className="links">
           {ids.map((id, i) => (
             <a key={id} href={"#" + id} onClick={e => go(e, id)}>
-              <em>0{i}</em>
+              <em>{String(i).padStart(2, "0")}</em>
               {t.nav[i]}
             </a>
           ))}
@@ -546,20 +553,22 @@ export default function App() {
       </header>
 
       <div className="main">
+        <div className="glow" aria-hidden="true" />
+        <Embers />
         <section id="home">
           <h1>{t.h1}</h1>
           <p className="lead">{t.h2}</p>
           <div className="stats">
             <div className="st">
-              <big style={{ color: M }}>1 122 137</big>
+              <big style={{ color: M }}><CountUp to={1122137} /></big>
               <small>{t.s[0]}</small>
             </div>
             <div className="st">
-              <big style={{ color: V }}>1 461 877</big>
+              <big style={{ color: V }}><CountUp to={1461877} /></big>
               <small>{t.s[1]}</small>
             </div>
             <div className="st">
-              <big style={{ color: "var(--ac)" }}>2.72 млн</big>
+              <big style={{ color: "var(--ac)" }}><CountUp to={2.72} dec={2} suffix={l === "ru" ? " млн" : " M"} /></big>
               <small>{t.s[2]}</small>
             </div>
           </div>
@@ -598,7 +607,8 @@ export default function App() {
           <div className="card">
             <Bars
               rot={1}
-              labels={reg.map(x => x[0])}
+              labels={reg.map(x => (l === "en" ? RE[x[0]] : x[0]))}
+              vl={l === "en" ? "Value" : "Значение"}
               series={[{ v: reg.map(x => x[1]), c: rs === "M" ? M : V }]}
               max={Math.max(...reg.map(x => x[1])) * 1.15}
               fmt={x => (rm === "d" ? x.toFixed(3) : Math.round(x).toLocaleString())}
@@ -616,6 +626,11 @@ export default function App() {
               </div>
             ))}
           </div>
+        </section>
+
+        <section id="map">
+          <Head t={MT[l].title} s={MT[l].sub} />
+          <MapSection l={l} month={mapMonth} setMonth={setMapMonth} months={t.mo} />
         </section>
 
         <section id="dyn">
@@ -676,7 +691,7 @@ export default function App() {
               ["501–1500 м", "191 588", "263 539", 64]
             ].map(a => (
               <div className="card" key={a[0]}>
-                <h3>{a[0]}</h3>
+                <h3>{l === "en" ? a[0].replace(" м", " m") : a[0]}</h3>
                 <small style={{ color: "var(--mu)" }}>
                   MODIS: {a[1]} · VIIRS: {a[2]}
                 </small>
@@ -700,11 +715,11 @@ export default function App() {
             set={scv}
           />
           <div className="card">
-            <h3>{t.altt.replace(/высотным поясам|elevation belt/, "")}</h3>
+            <h3>{l === "en" ? "Normalized density by land cover" : "Нормализованная плотность по типам покрова"}</h3>
             <p className="sub">{t.covs}</p>
             <Bars
               rot={1}
-              labels={CL}
+              labels={l === "en" ? CLE : CL}
               series={cs}
               max={8}
               fmt={x => x.toFixed(2)}
@@ -717,7 +732,7 @@ export default function App() {
           <Head t={t.inf} s={t.infs} />
           <div className="card">
             <h3>{t.inft}</h3>
-            <Line />
+            <Line l={l} />
             <Legend />
           </div>
           <div className="note">
@@ -776,7 +791,7 @@ export default function App() {
                     <div className="lp-info">
                       <em>{i + 1}</em>
                       <span style={{ color: k ? "#fff" : isHovered ? "#ffffff" : "var(--mu)" }}>
-                        {c[0]}
+                        {l === "en" ? CN[c[0]] || c[0] : c[0]}
                       </span>
                     </div>
                   </div>
