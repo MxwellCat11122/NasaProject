@@ -1,6 +1,6 @@
 import { useState, useMemo, useEffect, useLayoutEffect, useRef } from 'react';
 import { M, V, T, R, Y, MY, VY, MM, VM, CL, CM, CV, C, CN, CLE, RE } from './data';
-import MapSection from './Mapsection';
+import MapSection from "./MapSection";
 import { MT } from './mapdata';
 import { Embers, Progress, CountUp } from './Fx';
 import './App.css';
