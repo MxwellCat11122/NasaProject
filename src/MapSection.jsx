@@ -2,12 +2,18 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { REGIONS, MT, risk, level, LEVEL_COLOR, dist } from './mapdata';
+import TerraDusk from './TerraDusk';
 
 const KZ_BOUNDS = [[40.4, 46.4], [55.6, 87.5]];
 
 // Грубая проверка «точка в пределах Казахстана»
 const insideKZ = ([lat, lon]) =>
   lat > 40.5 && lat < 55.5 && lon > 46.5 && lon < 87.4;
+
+const GLOBE_TXT = {
+  ru: { t: "Земля из космоса", s: "Тяните, чтобы вращать. Солнце следует за курсором." },
+  en: { t: "Earth from space", s: "Drag to rotate. The sun follows your cursor." }
+};
 
 export default function MapSection({ l, month, setMonth, months }) {
   const t = MT[l];
@@ -54,6 +60,8 @@ export default function MapSection({ l, month, setMonth, months }) {
       clearTimeout(fix);
       map.remove();
       mapRef.current = null;
+      layerRef.current = null;
+      meRef.current = null;
     };
   }, []);
 
@@ -145,6 +153,7 @@ export default function MapSection({ l, month, setMonth, months }) {
 
   const myRisk = me ? risk(me.region, month) : 0;
   const myLv = level(myRisk);
+  const gt = GLOBE_TXT[l] || GLOBE_TXT.ru;
 
   return (
     <>
@@ -170,16 +179,36 @@ export default function MapSection({ l, month, setMonth, months }) {
         </button>
       </div>
 
-      <div className="map-card card">
-        <div ref={boxRef} className="map-box" />
-        <div className="map-leg">
-          <span>{t.legend}</span>
-          {t.lvl.map((n, i) => (
-            <i key={n}>
-              <b style={{ background: LEVEL_COLOR[i] }} />
-              {n}
-            </i>
-          ))}
+      <div className="map-row">
+        <div className="map-card card">
+          <div ref={boxRef} className="map-box" />
+          <div className="map-leg">
+            <span>{t.legend}</span>
+            {t.lvl.map((n, i) => (
+              <i key={n}>
+                <b style={{ background: LEVEL_COLOR[i] }} />
+                {n}
+              </i>
+            ))}
+          </div>
+        </div>
+
+        <div className="globe-card card">
+          <div className="globe-view">
+            <TerraDusk
+              size={290}
+              background="transparent"
+              stars={4}
+              speed={6}
+              hover={0}
+              sun="cursor"
+              look={{ clouds: 5, lights: 5, atmosphere: "#4F9BFF" }}
+            />
+          </div>
+          <div className="globe-cap">
+            <b>{gt.t}</b>
+            <small>{gt.s}</small>
+          </div>
         </div>
       </div>
 

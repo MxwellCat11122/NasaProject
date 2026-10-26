@@ -1,4 +1,11 @@
-import { R, VM } from './data';
+import { R, MM } from './data';
+const MAXS = Math.max(...MM);
+export const season = m => MM[m] / MAXS;
+
+// Вычисляем максимальную плотность (второй элемент в каждом подмассиве R)
+const MAXD = Math.max(...R.map(r => r[1]));
+
+// Центры административных единиц Казахстана...
 
 // Центры административных единиц Казахстана (широта, долгота) и названия.
 // Ключ — тот же код, что и в data.js (R).
@@ -25,9 +32,6 @@ export const GEO = {
   "МАН": { ll: [44.0, 54.0], ru: "Мангистауская обл.", en: "Mangystau" }
 };
 
-const MAXD = Math.max(...R.map(r => r[1]));
-const MAXS = Math.max(...VM);
-
 // Список регионов с базовой плотностью (MODIS, точек/км²)
 export const REGIONS = R.map(([code, d]) => ({
   code,
@@ -36,9 +40,6 @@ export const REGIONS = R.map(([code, d]) => ({
   ru: GEO[code].ru,
   en: GEO[code].en
 }));
-
-// Сезонный коэффициент месяца (0..1): пик в апреле
-export const season = m => VM[m] / MAXS;
 
 // Индекс риска региона в заданном месяце, 0..100.
 // Это иллюстративная модель на исторической плотности, а не оперативный прогноз.

@@ -1,24 +1,22 @@
 import { useState, useMemo, useEffect, useLayoutEffect, useRef } from 'react';
 import { M, V, T, R, Y, MY, VY, MM, VM, CL, CM, CV, C, CN, CLE, RE } from './data';
 import MapSection from "./MapSection";
+import DirLink from './DirLink';
 import { MT } from './mapdata';
 import { Embers, Progress, CountUp } from './Fx';
+import LiquidCarveButton from './ButtonHover';
+import DirectionHover from './DirectionHover';
 import './App.css';
+import './extra.css';
 
-// Браузер не должен сам восстанавливать позицию прокрутки при обновлении
 if (typeof window !== 'undefined' && 'scrollRestoration' in window.history) {
   window.history.scrollRestoration = 'manual';
 }
 
-// Сброс якоря/прокрутки при загрузке, плавное появление секций, подсветка карточек под курсором
 function usePageSetup() {
   useLayoutEffect(() => {
     if (window.location.hash) {
-      window.history.replaceState(
-        null,
-        '',
-        window.location.pathname + window.location.search
-      );
+      window.history.replaceState(null, '', window.location.pathname + window.location.search);
     }
     window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
 
@@ -26,18 +24,16 @@ function usePageSetup() {
     secs.forEach(s => s.classList.add('reveal'));
 
     const io = new IntersectionObserver(
-      entries =>
-        entries.forEach(e => {
-          if (e.isIntersecting) {
-            e.target.classList.add('in');
-            io.unobserve(e.target);
-          }
-        }),
+      entries => entries.forEach(e => {
+        if (e.isIntersecting) {
+          e.target.classList.add('in');
+          io.unobserve(e.target);
+        }
+      }),
       { threshold: 0.12 }
     );
     secs.forEach(s => io.observe(s));
 
-    // «Прожектор»: градиент в карточке следует за курсором
     const onMove = e => {
       const el = e.target.closest && e.target.closest('.card, .st, .note');
       if (!el) return;
@@ -56,16 +52,8 @@ function usePageSetup() {
 
 const Legend = ({ m = 1, v = 1 }) => (
   <div className="leg">
-    {m ? (
-      <span style={{ color: M }}>
-        <b style={{ background: M }}></b>MODIS
-      </span>
-    ) : null}
-    {v ? (
-      <span style={{ color: V }}>
-        <b style={{ background: V }}></b>VIIRS
-      </span>
-    ) : null}
+    {m ? <span style={{ color: M }}><b style={{ background: M }}></b>MODIS</span> : null}
+    {v ? <span style={{ color: V }}><b style={{ background: V }}></b>VIIRS</span> : null}
   </div>
 );
 
@@ -74,7 +62,6 @@ const Bars = ({ labels, series, max, rot, fmt = x => x, vl = "Значение" 
   const [ready, setReady] = useState(false);
   const ref = useRef(null);
 
-  // Столбики вырастают, когда график попадает в экран
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
@@ -92,23 +79,13 @@ const Bars = ({ labels, series, max, rot, fmt = x => x, vl = "Значение" 
   }, []);
 
   return (
-    <div
-      ref={ref}
-      style={{ position: "relative", width: "100%", paddingTop: "36px" }}
-      onMouseLeave={() => setHoveredIndex(null)}
-    >
-      {/* Безопасное позиционирование тултипа внутри карточки */}
+    <div ref={ref} style={{ position: "relative", width: "100%", paddingTop: "36px" }} onMouseLeave={() => setHoveredIndex(null)}>
       {hoveredIndex !== null && (
         <div
           className="bar-tooltip"
           style={{
             left: `${((hoveredIndex + 0.5) / labels.length) * 100}%`,
-            transform:
-              hoveredIndex > labels.length - 4
-                ? "translateX(-100%)"
-                : hoveredIndex < 3
-                ? "translateX(0%)"
-                : "translateX(-50%)"
+            transform: hoveredIndex > labels.length - 4 ? "translateX(-100%)" : hoveredIndex < 3 ? "translateX(0%)" : "translateX(-50%)"
           }}
         >
           <div className="bar-tooltip-title">{labels[hoveredIndex]}</div>
@@ -140,12 +117,8 @@ const Bars = ({ labels, series, max, rot, fmt = x => x, vl = "Значение" 
                   style={{
                     height: ready ? `${(s.v[i] / max) * 100}%` : "0%",
                     transition: `height .9s var(--ease) ${i * 20}ms, filter .15s ease`,
-                    background: isHovered
-                      ? `linear-gradient(180deg, ${s.c}, ${s.c}88)`
-                      : `linear-gradient(180deg, ${s.c}, ${s.c}44)`,
-                    boxShadow: isHovered
-                      ? `0 0 16px ${s.c}aa`
-                      : `0 0 6px ${s.c}22`,
+                    background: isHovered ? `linear-gradient(180deg, ${s.c}, ${s.c}88)` : `linear-gradient(180deg, ${s.c}, ${s.c}44)`,
+                    boxShadow: isHovered ? `0 0 16px ${s.c}aa` : `0 0 6px ${s.c}22`,
                     filter: isHovered ? "brightness(1.35)" : "none"
                   }}
                 />
@@ -157,14 +130,7 @@ const Bars = ({ labels, series, max, rot, fmt = x => x, vl = "Значение" 
 
       <div className={"lbl" + (rot ? " rot" : "")}>
         {labels.map((l, i) => (
-          <span
-            key={l}
-            style={{
-              color: hoveredIndex === i ? "#ffffff" : "var(--mu)",
-              fontWeight: hoveredIndex === i ? "700" : "400",
-              transition: "color 0.15s ease"
-            }}
-          >
+          <span key={l} style={{ color: hoveredIndex === i ? "#ffffff" : "var(--mu)", fontWeight: hoveredIndex === i ? "700" : "400", transition: "color 0.15s ease" }}>
             {l}
           </span>
         ))}
@@ -174,15 +140,17 @@ const Bars = ({ labels, series, max, rot, fmt = x => x, vl = "Значение" 
 };
 
 const Tog = ({ opts, val, set }) => (
-  <div className="tg">
+  <div className="tg" style={{ display: "flex", gap: "10px", flexWrap: "wrap", justifyContent: "center", margin: "14px 0 18px" }}>
     {opts.map(([k, l]) => (
-      <button
+      <LiquidCarveButton
         key={k}
-        className={val === k ? "on" : ""}
+        label={l}
+        isActive={val === k}
         onClick={() => set(k)}
-      >
-        {l}
-      </button>
+        padding="10px 20px"
+        rounded={12}
+        font={{ fontSize: 13, fontWeight: 600 }}
+      />
     ))}
   </div>
 );
@@ -194,18 +162,13 @@ const Head = ({ t, s }) => (
   </>
 );
 
-// Кастомный выпадающий список вместо системного <select>
 const Select = ({ options, value, onChange }) => {
   const [open, setOpen] = useState(false);
   const ref = useRef(null);
 
   useEffect(() => {
-    const onDown = e => {
-      if (ref.current && !ref.current.contains(e.target)) setOpen(false);
-    };
-    const onKey = e => {
-      if (e.key === "Escape") setOpen(false);
-    };
+    const onDown = e => { if (ref.current && !ref.current.contains(e.target)) setOpen(false); };
+    const onKey = e => { if (e.key === "Escape") setOpen(false); };
     document.addEventListener("mousedown", onDown);
     document.addEventListener("keydown", onKey);
     return () => {
@@ -216,13 +179,7 @@ const Select = ({ options, value, onChange }) => {
 
   return (
     <div className={"sel" + (open ? " open" : "")} ref={ref}>
-      <button
-        type="button"
-        className="sel-btn"
-        aria-haspopup="listbox"
-        aria-expanded={open}
-        onClick={() => setOpen(!open)}
-      >
+      <button type="button" className="sel-btn" aria-haspopup="listbox" aria-expanded={open} onClick={() => setOpen(!open)}>
         <span>{options[value]}</span>
         <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
           <path d="M2 4.5 6 8.5 10 4.5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
@@ -230,16 +187,7 @@ const Select = ({ options, value, onChange }) => {
       </button>
       <ul className="sel-list" role="listbox">
         {options.map((o, i) => (
-          <li
-            key={i}
-            role="option"
-            aria-selected={i === value}
-            className={i === value ? "on" : ""}
-            onClick={() => {
-              onChange(i);
-              setOpen(false);
-            }}
-          >
+          <li key={i} role="option" aria-selected={i === value} className={i === value ? "on" : ""} onClick={() => { onChange(i); setOpen(false); }}>
             {o}
           </li>
         ))}
@@ -250,50 +198,26 @@ const Select = ({ options, value, onChange }) => {
 
 function Line({ l }) {
   const [hoveredIndex, setHoveredIndex] = useState(null);
-
-  const L = l === "en"
-    ? ["0 m", "500 m", "1 km", "2 km", "5 km", "10 km", ">10 km"]
-    : ["0 м", "500 м", "1 км", "2 км", "5 км", "10 км", ">10 км"];
+  const L = l === "en" ? ["0 m", "500 m", "1 km", "2 km", "5 km", "10 km", ">10 km"] : ["0 м", "500 м", "1 км", "2 км", "5 км", "10 км", ">10 км"];
   const Vv = [2.497, 0.53, 0.6, 0.59, 0.71, 0.6, 0.37];
   const Mm = [0.36, 0.435, 0.48, 0.5, 0.47, 0.515, 0.27];
   const X = i => 50 + i * 100;
   const Yy = v => 240 - (v / 2.6) * 210;
 
-  const D = a =>
-    a
-      .map((v, i) => {
-        if (!i) return "M" + X(i) + " " + Yy(v);
-        const m = (X(i - 1) + X(i)) / 2;
-        return `C${m} ${Yy(a[i - 1])} ${m} ${Yy(v)} ${X(i)} ${Yy(v)}`;
-      })
-      .join(" ");
+  const D = a => a.map((v, i) => {
+    if (!i) return "M" + X(i) + " " + Yy(v);
+    const m = (X(i - 1) + X(i)) / 2;
+    return `C${m} ${Yy(a[i - 1])} ${m} ${Yy(v)} ${X(i)} ${Yy(v)}`;
+  }).join(" ");
 
   const A = (a, c, id) => (
     <g>
-      <path
-        d={D(a) + " L" + X(a.length - 1) + " 240 L50 240 Z"}
-        fill={`url(#${id})`}
-      />
-      <path
-        d={D(a)}
-        fill="none"
-        stroke={c}
-        strokeWidth="3"
-        strokeLinecap="round"
-      />
+      <path d={D(a) + " L" + X(a.length - 1) + " 240 L50 240 Z"} fill={`url(#${id})`} />
+      <path d={D(a)} fill="none" stroke={c} strokeWidth="3" strokeLinecap="round" />
       {a.map((v, i) => {
         const isHovered = hoveredIndex === i;
         return (
-          <circle
-            key={i}
-            cx={X(i)}
-            cy={Yy(v)}
-            r={isHovered ? "6" : "4.5"}
-            fill={isHovered ? c : "#000"}
-            stroke={c}
-            strokeWidth={isHovered ? "3.5" : "2.5"}
-            style={{ transition: "all 0.15s ease" }}
-          />
+          <circle key={i} cx={X(i)} cy={Yy(v)} r={isHovered ? "6" : "4.5"} fill={isHovered ? c : "#000"} stroke={c} strokeWidth={isHovered ? "3.5" : "2.5"} style={{ transition: "all 0.15s ease" }} />
         );
       })}
     </g>
@@ -301,111 +225,45 @@ function Line({ l }) {
 
   return (
     <div style={{ position: "relative", width: "100%" }}>
-      <svg
-        viewBox="0 0 700 280"
-        style={{ width: "100%", display: "block" }}
-        onMouseLeave={() => setHoveredIndex(null)}
-      >
+      <svg viewBox="0 0 700 280" style={{ width: "100%", display: "block" }} onMouseLeave={() => setHoveredIndex(null)}>
         <defs>
-          {[
-            ["gM", M],
-            ["gV", V]
-          ].map(([id, c]) => (
+          {[["gM", M], ["gV", V]].map(([id, c]) => (
             <linearGradient key={id} id={id} x1="0" y1="0" x2="0" y2="1">
               <stop offset="0" stopColor={c} stopOpacity=".4" />
               <stop offset="1" stopColor={c} stopOpacity="0" />
             </linearGradient>
           ))}
         </defs>
-
         {[0, 0.65, 1.3, 1.95, 2.6].map(t => (
           <g key={t}>
-            <line
-              x1="50"
-              x2="670"
-              y1={Yy(t)}
-              y2={Yy(t)}
-              stroke="#262626"
-              strokeDasharray="3 5"
-            />
-            <text
-              x="42"
-              y={Yy(t) + 4}
-              fill="#a1a1aa"
-              fontSize="11"
-              textAnchor="end"
-            >
-              {t}
-            </text>
+            <line x1="50" x2="670" y1={Yy(t)} y2={Yy(t)} stroke="#262626" strokeDasharray="3 5" />
+            <text x="42" y={Yy(t) + 4} fill="#a1a1aa" fontSize="11" textAnchor="end">{t}</text>
           </g>
         ))}
-
         {A(Mm, M, "gM")}
         {A(Vv, V, "gV")}
-
-        {hoveredIndex !== null && (
-          <line
-            x1={X(hoveredIndex)}
-            x2={X(hoveredIndex)}
-            y1={20}
-            y2={240}
-            stroke="#ffffff"
-            strokeWidth="1.5"
-            opacity="0.75"
-            style={{ pointerEvents: "none" }}
-          />
-        )}
-
+        {hoveredIndex !== null && <line x1={X(hoveredIndex)} x2={X(hoveredIndex)} y1={20} y2={240} stroke="#ffffff" strokeWidth="1.5" opacity="0.75" style={{ pointerEvents: "none" }} />}
         {L.map((l, i) => (
-          <text
-            key={l}
-            x={X(i)}
-            y="266"
-            fill={hoveredIndex === i ? "#ffffff" : "#a1a1aa"}
-            fontWeight={hoveredIndex === i ? "700" : "400"}
-            fontSize="11"
-            textAnchor="middle"
-            style={{ transition: "fill 0.15s ease" }}
-          >
+          <text key={l} x={X(i)} y="266" fill={hoveredIndex === i ? "#ffffff" : "#a1a1aa"} fontWeight={hoveredIndex === i ? "700" : "400"} fontSize="11" textAnchor="middle" style={{ transition: "fill 0.15s ease" }}>
             {l}
           </text>
         ))}
-
         {L.map((_, i) => (
-          <rect
-            key={i}
-            x={X(i) - 45}
-            y={0}
-            width={90}
-            height={280}
-            fill="transparent"
-            style={{ cursor: "pointer" }}
-            onMouseEnter={() => setHoveredIndex(i)}
-            onTouchStart={() => setHoveredIndex(i)}
-          />
+          <rect key={i} x={X(i) - 45} y={0} width={90} height={280} fill="transparent" style={{ cursor: "pointer" }} onMouseEnter={() => setHoveredIndex(i)} onTouchStart={() => setHoveredIndex(i)} />
         ))}
       </svg>
-
       {hoveredIndex !== null && (
-        <div
-          className="line-tooltip"
-          style={{
-            left: `${(X(hoveredIndex) / 700) * 100}%`,
-            transform: hoveredIndex > 3 ? "translate(-112%, -50%)" : "translate(12%, -50%)"
-          }}
-        >
+        <div className="line-tooltip" style={{ left: `${(X(hoveredIndex) / 700) * 100}%`, transform: hoveredIndex > 3 ? "translate(-112%, -50%)" : "translate(12%, -50%)" }}>
           <div className="line-tooltip-title">{L[hoveredIndex]}</div>
           <div className="line-tooltip-row">
             <span style={{ color: M, fontWeight: "600", display: "flex", alignItems: "center", gap: "6px" }}>
-              <span style={{ width: "7px", height: "7px", borderRadius: "50%", background: M, display: "inline-block" }}></span>
-              MODIS
+              <span style={{ width: "7px", height: "7px", borderRadius: "50%", background: M, display: "inline-block" }}></span> MODIS
             </span>
             <b>{Mm[hoveredIndex].toString().replace(".", ",")}</b>
           </div>
           <div className="line-tooltip-row">
             <span style={{ color: V, fontWeight: "600", display: "flex", alignItems: "center", gap: "6px" }}>
-              <span style={{ width: "7px", height: "7px", borderRadius: "50%", background: V, display: "inline-block" }}></span>
-              VIIRS
+              <span style={{ width: "7px", height: "7px", borderRadius: "50%", background: V, display: "inline-block" }}></span> VIIRS
             </span>
             <b>{Vv[hoveredIndex].toString().replace(".", ",")}</b>
           </div>
@@ -429,60 +287,28 @@ function Calc({ t }) {
   return (
     <div className="card">
       <h3>{t.calc}</h3>
-      <p className="sub" style={{ margin: "2px 0" }}>
-        {t.calcn}
-      </p>
+      <p className="sub" style={{ margin: "2px 0" }}>{t.calcn}</p>
       <div className="calc">
         <div className="fld">
           <span className="fl">{t.c1}</span>
           <div className="num">
-            <button type="button" aria-label="−5" onClick={() => step(-5)}>
-              −
-            </button>
-            <input
-              type="number"
-              min="0"
-              value={a}
-              onChange={e => sa(Math.max(0, +e.target.value || 0))}
-            />
-            <button type="button" aria-label="+5" onClick={() => step(5)}>
-              +
-            </button>
+            <button type="button" aria-label="−5" onClick={() => step(-5)}>−</button>
+            <input type="number" min="0" value={a} onChange={e => sa(Math.max(0, +e.target.value || 0))} />
+            <button type="button" aria-label="+5" onClick={() => step(5)}>+</button>
           </div>
         </div>
-
         <div className="fld">
-          <span className="fl">
-            {t.c2}: <b>{z}°</b>
-          </span>
-          <input
-            type="range"
-            className="rng"
-            min="0"
-            max="65"
-            value={z}
-            style={{ "--p": `${(z / 65) * 100}%` }}
-            onChange={e => sz(+e.target.value)}
-          />
+          <span className="fl">{t.c2}: <b>{z}°</b></span>
+          <input type="range" className="rng" min="0" max="65" value={z} style={{ "--p": `${(z / 65) * 100}%` }} onChange={e => sz(+e.target.value)} />
         </div>
-
         <div className="fld">
           <span className="fl">{t.c3}</span>
           <Select options={t.bio} value={bi} onChange={sbi} />
         </div>
-
         <div className="fld">
           <span className="fl">{t.c4}</span>
-          <div className="res">
-            <span key={val} className="pop">
-              {val}
-            </span>
-            <small>MW</small>
-          </div>
-          <div className="chips">
-            <span>k = {k}</span>
-            <span>VZA ×{f.toFixed(2)}</span>
-          </div>
+          <div className="res"><span key={val} className="pop">{val}</span><small>MW</small></div>
+          <div className="chips"><span>k = {k}</span><span>VZA ×{f.toFixed(2)}</span></div>
         </div>
       </div>
     </div>
@@ -503,12 +329,11 @@ export default function App() {
   const [mapMonth, setMapMonth] = useState(new Date().getMonth());
 
   const reg = useMemo(
-    () =>
-      R.map(r => {
-        let d = r[1] * (rs === "M" ? 1 : 1.28);
-        if (rs === "V" && r[0] === "ШЫМ") d = 2.12;
-        return [r[0], rm === "d" ? d : d * r[2] * 1000];
-      }).sort((a, b) => b[1] - a[1]),
+    () => R.map(r => {
+      let d = r[1] * (rs === "M" ? 1 : 1.28);
+      if (rs === "V" && r[0] === "ШЫМ") d = 2.12;
+      return [r[0], rm === "d" ? d : d * r[2] * 1000];
+    }).sort((a, b) => b[1] - a[1]),
     [rm, rs]
   );
 
@@ -517,38 +342,31 @@ export default function App() {
   if (cv !== "V") cs.push({ v: CM, c: M });
   if (cv !== "M") cs.push({ v: CV, c: V });
 
-  // Плавный переход по меню без добавления #якоря в адрес
   const go = (e, id) => {
     e.preventDefault();
     so(false);
-    document
-      .getElementById(id)
-      ?.scrollIntoView({ behavior: "smooth", block: "start" });
+    document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
   };
 
   return (
     <div>
       <Progress />
       <header className={"side" + (open ? " open" : "")}>
-        <div className="brand">{l === "en" ? "Space Emergency Monitoring Lab" : "Лаборатория космического мониторинга ЧС"}</div>
-        <button className="burger" onClick={() => so(!open)}>
-          {open ? "✕" : "☰"}
-        </button>
+        <div className="brand">
+          <DirectionHover title={l === "en" ? "Space Monitoring Lab" : "Мониторинг ЧС"} hoverColor="#6E92FF" />
+        </div>
+        <button className="burger" onClick={() => so(!open)}>{open ? "✕" : "☰"}</button>
         <div className="links">
           {ids.map((id, i) => (
-            <a key={id} href={"#" + id} onClick={e => go(e, id)}>
+            <DirLink key={id} href={"#" + id} onClick={e => go(e, id)}>
               <em>{String(i).padStart(2, "0")}</em>
               {t.nav[i]}
-            </a>
+            </DirLink>
           ))}
         </div>
         <div className="sl">
-          <span className={l === "ru" ? "on" : ""} onClick={() => sl("ru")}>
-            RU
-          </span>
-          <span className={l === "en" ? "on" : ""} onClick={() => sl("en")}>
-            EN
-          </span>
+          <span className={l === "ru" ? "on" : ""} onClick={() => sl("ru")}>RU</span>
+          <span className={l === "en" ? "on" : ""} onClick={() => sl("en")}>EN</span>
         </div>
       </header>
 
@@ -559,25 +377,12 @@ export default function App() {
           <h1>{t.h1}</h1>
           <p className="lead">{t.h2}</p>
           <div className="stats">
-            <div className="st">
-              <big style={{ color: M }}><CountUp to={1122137} /></big>
-              <small>{t.s[0]}</small>
-            </div>
-            <div className="st">
-              <big style={{ color: V }}><CountUp to={1461877} /></big>
-              <small>{t.s[1]}</small>
-            </div>
-            <div className="st">
-              <big style={{ color: "var(--ac)" }}><CountUp to={2.72} dec={2} suffix={l === "ru" ? " млн" : " M"} /></big>
-              <small>{t.s[2]}</small>
-            </div>
+            <div className="st"><big style={{ color: M }}><CountUp to={1122137} /></big><small>{t.s[0]}</small></div>
+            <div className="st"><big style={{ color: V }}><CountUp to={1461877} /></big><small>{t.s[1]}</small></div>
+            <div className="st"><big style={{ color: "var(--ac)" }}><CountUp to={2.72} dec={2} suffix={l === "ru" ? " млн" : " M"} /></big><small>{t.s[2]}</small></div>
           </div>
           <div className="tags">
-            {["MODIS", "VIIRS", "FIRMS", "QGIS", "Python", "ESA WorldCover"].map(
-              x => (
-                <span key={x}>{x}</span>
-              )
-            )}
+            {["MODIS", "VIIRS", "FIRMS", "QGIS", "Python", "ESA WorldCover"].map(x => (<span key={x}>{x}</span>))}
           </div>
         </section>
 
@@ -588,22 +393,8 @@ export default function App() {
 
         <section id="reg">
           <Head t={t.reg} s={t.regs} />
-          <Tog
-            opts={[
-              ["d", t.dens],
-              ["a", t.cnt]
-            ]}
-            val={rm}
-            set={srm}
-          />
-          <Tog
-            opts={[
-              ["M", "MODIS"],
-              ["V", "VIIRS"]
-            ]}
-            val={rs}
-            set={srs}
-          />
+          <Tog opts={[["d", t.dens], ["a", t.cnt]]} val={rm} set={srm} />
+          <Tog opts={[["M", "MODIS"], ["V", "VIIRS"]]} val={rs} set={srs} />
           <div className="card">
             <Bars
               rot={1}
@@ -615,15 +406,8 @@ export default function App() {
             />
           </div>
           <div className="kpis">
-            {[
-              ["1.031", M],
-              ["2.12", V],
-              ["0.009", "#a1a1aa"]
-            ].map(([n, c], i) => (
-              <div className="st" key={i}>
-                <big style={{ color: c }}>{n}</big>
-                <small>{t.k[i]}</small>
-              </div>
+            {[["1.031", M], ["2.12", V], ["0.009", "#a1a1aa"]].map(([n, c], i) => (
+              <div className="st" key={i}><big style={{ color: c }}>{n}</big><small>{t.k[i]}</small></div>
             ))}
           </div>
         </section>
@@ -635,31 +419,14 @@ export default function App() {
 
         <section id="dyn">
           <Head t={t.dyn} s={t.dyns} />
-          <Tog
-            opts={[
-              ["y", t.yr],
-              ["s", t.se]
-            ]}
-            val={dm}
-            set={sdm}
-          />
+          <Tog opts={[["y", t.yr], ["s", t.se]]} val={dm} set={sdm} />
           <div className="card">
             <h3>{dm === "y" ? t.yr + " (2001–2024)" : t.se}</h3>
             <div className="sc">
               <div style={{ minWidth: "620px" }}>
                 <Bars
                   labels={dm === "y" ? Y : t.mo}
-                  series={
-                    dm === "y"
-                      ? [
-                          { v: MY, c: M },
-                          { v: VY, c: V }
-                        ]
-                      : [
-                          { v: MM, c: M },
-                          { v: VM, c: V }
-                        ]
-                  }
+                  series={dm === "y" ? [{ v: MY, c: M }, { v: VY, c: V }] : [{ v: MM, c: M }, { v: VM, c: V }]}
                   max={dm === "y" ? 260 : 270}
                   fmt={x => x + "K"}
                 />
@@ -673,31 +440,15 @@ export default function App() {
           <Head t={t.alt} s={t.alts} />
           <div className="card">
             <h3>{t.altt}</h3>
-            <Bars
-              labels={["0–200", "201–500", "501–1500", "1501–2500", "2501–4500", "4500+"]}
-              series={[
-                { v: [0.41, 0.445, 0.39, 0.083, 0.002, 0], c: M },
-                { v: [0.49, 0.615, 0.54, 0.092, 0.004, 0], c: V }
-              ]}
-              max={0.8}
-              fmt={x => x.toFixed(2)}
-            />
+            <Bars labels={["0–200", "201–500", "501–1500", "1501–2500", "2501–4500", "4500+"]} series={[{ v: [0.41, 0.445, 0.39, 0.083, 0.002, 0], c: M }, { v: [0.49, 0.615, 0.54, 0.092, 0.004, 0], c: V }]} max={0.8} fmt={x => x.toFixed(2)} />
             <Legend />
           </div>
           <div className="kpis">
-            {[
-              ["0–200 м", "460 171", "549 663", 67],
-              ["201–500 м", "466 521", "644 382", 73],
-              ["501–1500 м", "191 588", "263 539", 64]
-            ].map(a => (
+            {[["0–200 м", "460 171", "549 663", 67], ["201–500 м", "466 521", "644 382", 73], ["501–1500 м", "191 588", "263 539", 64]].map(a => (
               <div className="card" key={a[0]}>
                 <h3>{l === "en" ? a[0].replace(" м", " m") : a[0]}</h3>
-                <small style={{ color: "var(--mu)" }}>
-                  MODIS: {a[1]} · VIIRS: {a[2]}
-                </small>
-                <div className="pb">
-                  <i style={{ width: a[3] + "%" }}></i>
-                </div>
+                <small style={{ color: "var(--mu)" }}>MODIS: {a[1]} · VIIRS: {a[2]}</small>
+                <div className="pb"><i style={{ width: a[3] + "%" }}></i></div>
               </div>
             ))}
           </div>
@@ -705,25 +456,11 @@ export default function App() {
 
         <section id="cov">
           <Head t={t.cov} s="ESA WorldCover 2021" />
-          <Tog
-            opts={[
-              ["B", t.both],
-              ["M", "MODIS"],
-              ["V", "VIIRS"]
-            ]}
-            val={cv}
-            set={scv}
-          />
+          <Tog opts={[["B", t.both], ["M", "MODIS"], ["V", "VIIRS"]]} val={cv} set={scv} />
           <div className="card">
             <h3>{l === "en" ? "Normalized density by land cover" : "Нормализованная плотность по типам покрова"}</h3>
             <p className="sub">{t.covs}</p>
-            <Bars
-              rot={1}
-              labels={l === "en" ? CLE : CL}
-              series={cs}
-              max={8}
-              fmt={x => x.toFixed(2)}
-            />
+            <Bars rot={1} labels={l === "en" ? CLE : CL} series={cs} max={8} fmt={x => x.toFixed(2)} />
             <Legend m={cv !== "V" ? 1 : 0} v={cv !== "M" ? 1 : 0} />
           </div>
         </section>
@@ -735,21 +472,14 @@ export default function App() {
             <Line l={l} />
             <Legend />
           </div>
-          <div className="note">
-            <b>{t.key}</b>
-            {t.infn}
-          </div>
+          <div className="note"><b>{t.key}</b>{t.infn}</div>
         </section>
 
         <section id="harm">
           <Head t={t.har} s={t.hars} />
           <div className="steps">
             {t.st.map((s, i) => (
-              <div className="card" key={i}>
-                <em>0{i + 1}</em>
-                <h3>{s[0]}</h3>
-                <p>{s[1]}</p>
-              </div>
+              <div className="card" key={i}><em>0{i + 1}</em><h3>{s[0]}</h3><p>{s[1]}</p></div>
             ))}
           </div>
           <Calc t={t} />
@@ -766,33 +496,17 @@ export default function App() {
                 const isHovered = activeCountry === i;
                 const w = (c[1] / (maxVal * 1.05)) * 100 + "%";
                 return (
-                  <div
-                    className={`lp-item ${isHovered ? "active" : ""}`}
-                    key={c[0]}
-                    onMouseEnter={() => setActiveCountry(i)}
-                    onMouseLeave={() => setActiveCountry(null)}
-                    onTouchStart={() => setActiveCountry(i)}
-                  >
+                  <div className={`lp-item ${isHovered ? "active" : ""}`} key={c[0]} onMouseEnter={() => setActiveCountry(i)} onMouseLeave={() => setActiveCountry(null)} onTouchStart={() => setActiveCountry(i)}>
                     <div className="lp-line">
                       <div className="tr">
                         <u className={k ? "kz" : ""} style={{ width: w }}></u>
-                        <i
-                          className={k ? "kz" : ""}
-                          style={{
-                            left: w,
-                            transform: isHovered ? "scale(1.35)" : "scale(1)"
-                          }}
-                        ></i>
+                        <i className={k ? "kz" : ""} style={{ left: w, transform: isHovered ? "scale(1.35)" : "scale(1)" }}></i>
                       </div>
-                      <b style={{ color: k ? M : isHovered ? "#fff" : "var(--mu)" }}>
-                        {c[1].toFixed(2)}
-                      </b>
+                      <b style={{ color: k ? M : isHovered ? "#fff" : "var(--mu)" }}>{c[1].toFixed(2)}</b>
                     </div>
                     <div className="lp-info">
                       <em>{i + 1}</em>
-                      <span style={{ color: k ? "#fff" : isHovered ? "#ffffff" : "var(--mu)" }}>
-                        {l === "en" ? CN[c[0]] || c[0] : c[0]}
-                      </span>
+                      <span style={{ color: k ? "#fff" : isHovered ? "#ffffff" : "var(--mu)" }}>{l === "en" ? CN[c[0]] || c[0] : c[0]}</span>
                     </div>
                   </div>
                 );
@@ -807,16 +521,14 @@ export default function App() {
             <div className="card" key={i}>
               <div className="con">
                 <em>0{i + 1}</em>
-                <div>
-                  <b>{o[0]}</b>
-                  <p>{o[1]}</p>
-                </div>
+                <div><b>{o[0]}</b><p>{o[1]}</p></div>
               </div>
             </div>
           ))}
         </section>
 
-        <footer>
+        {/* Обычный чистый футер без тяжелых шейдеров */}
+        <footer style={{ padding: "40px 20px", textAlign: "center", color: "var(--mu)", borderTop: "1px solid rgba(255,255,255,0.06)", fontSize: "13px" }}>
           NASA FIRMS · ESA WorldCover 2021 · OpenStreetMap · NASADEM · HDX
           <br />
           2001–2024 · MODIS (MCD14ML) · VIIRS (VNP14IMGTDL/VJ114IMGTDL)
