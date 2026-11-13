@@ -10,13 +10,18 @@
   position: absolute;
   inset: 0;
   z-index: -1;
+<<<<<<< HEAD
   background: var(--ac);
+=======
+  background: #fff;
+>>>>>>> b37e070b6c9c56c702e75cbe1f18470021744b22
   transform: translate3d(-101%, 0, 0);
   transition: transform 0.35s var(--ease);
   pointer-events: none;
   will-change: transform;
 }
 
+<<<<<<< HEAD
 .links a.dh:hover {
   background: transparent;
   padding-left: 12px;
@@ -26,6 +31,18 @@
 
 .links a.dh:hover em {
   color: var(--ac-tx);
+=======
+/* перебиваем старый hover у пунктов меню: без сдвига padding, цвет меняется на контрастный */
+.links a.dh:hover {
+  background: transparent;
+  padding-left: 12px;
+  color: #000;
+  border-left-color: #fff;
+}
+
+.links a.dh:hover em {
+  color: #000;
+>>>>>>> b37e070b6c9c56c702e75cbe1f18470021744b22
 }
 
 /* ===== Карта и глобус во всю ширину друг под другом ===== */
@@ -65,14 +82,22 @@
 .globe-cap {
   padding: 12px 16px;
   border-top: 1px solid var(--bd);
+<<<<<<< HEAD
   background: var(--card-alt);
+=======
+  background: #080808;
+>>>>>>> b37e070b6c9c56c702e75cbe1f18470021744b22
   height: 60px;
 }
 
 .globe-cap b {
   display: block;
   font-size: 14px;
+<<<<<<< HEAD
   color: var(--tx-strong);
+=======
+  color: #fff;
+>>>>>>> b37e070b6c9c56c702e75cbe1f18470021744b22
 }
 
 .globe-cap small {
