@@ -35,11 +35,7 @@ function usePageSetup() {
     secs.forEach(s => io.observe(s));
 
     const onMove = e => {
-<<<<<<< HEAD
       const el = e.target.closest && e.target.closest('.card, .st, .note, .guide-card');
-=======
-      const el = e.target.closest && e.target.closest('.card, .st, .note');
->>>>>>> b37e070b6c9c56c702e75cbe1f18470021744b22
       if (!el) return;
       const r = el.getBoundingClientRect();
       el.style.setProperty('--mx', `${e.clientX - r.left}px`);
@@ -54,17 +50,10 @@ function usePageSetup() {
   }, []);
 }
 
-<<<<<<< HEAD
 const Legend = ({ m = 1, v = 1, mc = M, vc = V }) => (
   <div className="leg">
     {m ? <span style={{ color: mc }}><b style={{ background: mc }}></b>MODIS</span> : null}
     {v ? <span style={{ color: vc }}><b style={{ background: vc }}></b>VIIRS</span> : null}
-=======
-const Legend = ({ m = 1, v = 1 }) => (
-  <div className="leg">
-    {m ? <span style={{ color: M }}><b style={{ background: M }}></b>MODIS</span> : null}
-    {v ? <span style={{ color: V }}><b style={{ background: V }}></b>VIIRS</span> : null}
->>>>>>> b37e070b6c9c56c702e75cbe1f18470021744b22
   </div>
 );
 
@@ -141,11 +130,7 @@ const Bars = ({ labels, series, max, rot, fmt = x => x, vl = "Значение" 
 
       <div className={"lbl" + (rot ? " rot" : "")}>
         {labels.map((l, i) => (
-<<<<<<< HEAD
           <span key={l} style={{ color: hoveredIndex === i ? "var(--tx-strong)" : "var(--mu)", fontWeight: hoveredIndex === i ? "700" : "400", transition: "color 0.15s ease" }}>
-=======
-          <span key={l} style={{ color: hoveredIndex === i ? "#ffffff" : "var(--mu)", fontWeight: hoveredIndex === i ? "700" : "400", transition: "color 0.15s ease" }}>
->>>>>>> b37e070b6c9c56c702e75cbe1f18470021744b22
             {l}
           </span>
         ))}
@@ -211,11 +196,7 @@ const Select = ({ options, value, onChange }) => {
   );
 };
 
-<<<<<<< HEAD
 function Line({ l, mc = M, vc = V }) {
-=======
-function Line({ l }) {
->>>>>>> b37e070b6c9c56c702e75cbe1f18470021744b22
   const [hoveredIndex, setHoveredIndex] = useState(null);
   const L = l === "en" ? ["0 m", "500 m", "1 km", "2 km", "5 km", "10 km", ">10 km"] : ["0 м", "500 м", "1 км", "2 км", "5 км", "10 км", ">10 км"];
   const Vv = [2.497, 0.53, 0.6, 0.59, 0.71, 0.6, 0.37];
@@ -236,11 +217,7 @@ function Line({ l }) {
       {a.map((v, i) => {
         const isHovered = hoveredIndex === i;
         return (
-<<<<<<< HEAD
           <circle key={i} cx={X(i)} cy={Yy(v)} r={isHovered ? "6" : "4.5"} fill={isHovered ? c : "var(--card)"} stroke={c} strokeWidth={isHovered ? "3.5" : "2.5"} style={{ transition: "all 0.15s ease" }} />
-=======
-          <circle key={i} cx={X(i)} cy={Yy(v)} r={isHovered ? "6" : "4.5"} fill={isHovered ? c : "#000"} stroke={c} strokeWidth={isHovered ? "3.5" : "2.5"} style={{ transition: "all 0.15s ease" }} />
->>>>>>> b37e070b6c9c56c702e75cbe1f18470021744b22
         );
       })}
     </g>
@@ -250,11 +227,7 @@ function Line({ l }) {
     <div style={{ position: "relative", width: "100%" }}>
       <svg viewBox="0 0 700 280" style={{ width: "100%", display: "block" }} onMouseLeave={() => setHoveredIndex(null)}>
         <defs>
-<<<<<<< HEAD
           {[["gM", mc], ["gV", vc]].map(([id, c]) => (
-=======
-          {[["gM", M], ["gV", V]].map(([id, c]) => (
->>>>>>> b37e070b6c9c56c702e75cbe1f18470021744b22
             <linearGradient key={id} id={id} x1="0" y1="0" x2="0" y2="1">
               <stop offset="0" stopColor={c} stopOpacity=".4" />
               <stop offset="1" stopColor={c} stopOpacity="0" />
@@ -263,7 +236,6 @@ function Line({ l }) {
         </defs>
         {[0, 0.65, 1.3, 1.95, 2.6].map(t => (
           <g key={t}>
-<<<<<<< HEAD
             <line x1="50" x2="670" y1={Yy(t)} y2={Yy(t)} stroke="var(--bd)" strokeDasharray="3 5" />
             <text x="42" y={Yy(t) + 4} fill="var(--mu)" fontSize="11" textAnchor="end">{t}</text>
           </g>
@@ -274,18 +246,6 @@ function Line({ l }) {
         {L.map((lblText, i) => (
           <text key={lblText} x={X(i)} y="266" fill={hoveredIndex === i ? "var(--tx-strong)" : "var(--mu)"} fontWeight={hoveredIndex === i ? "700" : "400"} fontSize="11" textAnchor="middle" style={{ transition: "fill 0.15s ease" }}>
             {lblText}
-=======
-            <line x1="50" x2="670" y1={Yy(t)} y2={Yy(t)} stroke="#262626" strokeDasharray="3 5" />
-            <text x="42" y={Yy(t) + 4} fill="#a1a1aa" fontSize="11" textAnchor="end">{t}</text>
-          </g>
-        ))}
-        {A(Mm, M, "gM")}
-        {A(Vv, V, "gV")}
-        {hoveredIndex !== null && <line x1={X(hoveredIndex)} x2={X(hoveredIndex)} y1={20} y2={240} stroke="#ffffff" strokeWidth="1.5" opacity="0.75" style={{ pointerEvents: "none" }} />}
-        {L.map((l, i) => (
-          <text key={l} x={X(i)} y="266" fill={hoveredIndex === i ? "#ffffff" : "#a1a1aa"} fontWeight={hoveredIndex === i ? "700" : "400"} fontSize="11" textAnchor="middle" style={{ transition: "fill 0.15s ease" }}>
-            {l}
->>>>>>> b37e070b6c9c56c702e75cbe1f18470021744b22
           </text>
         ))}
         {L.map((_, i) => (
@@ -296,24 +256,14 @@ function Line({ l }) {
         <div className="line-tooltip" style={{ left: `${(X(hoveredIndex) / 700) * 100}%`, transform: hoveredIndex > 3 ? "translate(-112%, -50%)" : "translate(12%, -50%)" }}>
           <div className="line-tooltip-title">{L[hoveredIndex]}</div>
           <div className="line-tooltip-row">
-<<<<<<< HEAD
             <span style={{ color: mc, fontWeight: "600", display: "flex", alignItems: "center", gap: "6px" }}>
               <span style={{ width: "7px", height: "7px", borderRadius: "50%", background: mc, display: "inline-block" }}></span> MODIS
-=======
-            <span style={{ color: M, fontWeight: "600", display: "flex", alignItems: "center", gap: "6px" }}>
-              <span style={{ width: "7px", height: "7px", borderRadius: "50%", background: M, display: "inline-block" }}></span> MODIS
->>>>>>> b37e070b6c9c56c702e75cbe1f18470021744b22
             </span>
             <b>{Mm[hoveredIndex].toString().replace(".", ",")}</b>
           </div>
           <div className="line-tooltip-row">
-<<<<<<< HEAD
             <span style={{ color: vc, fontWeight: "600", display: "flex", alignItems: "center", gap: "6px" }}>
               <span style={{ width: "7px", height: "7px", borderRadius: "50%", background: vc, display: "inline-block" }}></span> VIIRS
-=======
-            <span style={{ color: V, fontWeight: "600", display: "flex", alignItems: "center", gap: "6px" }}>
-              <span style={{ width: "7px", height: "7px", borderRadius: "50%", background: V, display: "inline-block" }}></span> VIIRS
->>>>>>> b37e070b6c9c56c702e75cbe1f18470021744b22
             </span>
             <b>{Vv[hoveredIndex].toString().replace(".", ",")}</b>
           </div>
@@ -369,7 +319,6 @@ export default function App() {
   usePageSetup();
 
   const [l, sl] = useState("ru");
-<<<<<<< HEAD
   const [theme, setTheme] = useState(() => localStorage.getItem("theme") || "dark");
 
   useEffect(() => {
@@ -386,8 +335,6 @@ export default function App() {
   const mc = chartColors.m;
   const vc = chartColors.v;
 
-=======
->>>>>>> b37e070b6c9c56c702e75cbe1f18470021744b22
   const t = T[l];
   const [rm, srm] = useState("d");
   const [rs, srs] = useState("M");
@@ -408,13 +355,8 @@ export default function App() {
 
   const ids = ["home", "abs", "reg", "map", "dyn", "alt", "cov", "inf", "harm", "cmp", "out"];
   const cs = [];
-<<<<<<< HEAD
   if (cv !== "V") cs.push({ v: CM, c: mc });
   if (cv !== "M") cs.push({ v: CV, c: vc });
-=======
-  if (cv !== "V") cs.push({ v: CM, c: M });
-  if (cv !== "M") cs.push({ v: CV, c: V });
->>>>>>> b37e070b6c9c56c702e75cbe1f18470021744b22
 
   const go = (e, id) => {
     e.preventDefault();
@@ -422,7 +364,6 @@ export default function App() {
     document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
   };
 
-<<<<<<< HEAD
   const brandTitle = l === "en" ? "PVM-PA (Spatio-Temporal Fire Activity Monitoring)" : "ПВМ-ПА (Пространственно-Временной Мониторинг Пожарной Активности)";
 
   const guideText = l === "en" ? {
@@ -443,18 +384,12 @@ export default function App() {
     ]
   };
 
-=======
->>>>>>> b37e070b6c9c56c702e75cbe1f18470021744b22
   return (
     <div>
       <Progress />
       <header className={"side" + (open ? " open" : "")}>
         <div className="brand">
-<<<<<<< HEAD
           <DirectionHover title={brandTitle} hoverColor="#6E92FF" />
-=======
-          <DirectionHover title={l === "en" ? "Space Monitoring Lab" : "Мониторинг ЧС"} hoverColor="#6E92FF" />
->>>>>>> b37e070b6c9c56c702e75cbe1f18470021744b22
         </div>
         <button className="burger" onClick={() => so(!open)}>{open ? "✕" : "☰"}</button>
         <div className="links">
@@ -465,9 +400,7 @@ export default function App() {
             </DirLink>
           ))}
         </div>
-<<<<<<< HEAD
 
-        {/* Обновленные названия тем */}
         <div className="sl" style={{ marginTop: "auto", marginBottom: "4px" }}>
           <span className={theme === "dark" ? "on" : ""} onClick={() => setTheme("dark")}>{l === "en" ? "Dark" : "Тёмная"}</span>
           <span className={theme === "light" ? "on" : ""} onClick={() => setTheme("light")}>{l === "en" ? "Light" : "Светлая"}</span>
@@ -475,9 +408,6 @@ export default function App() {
         </div>
 
         <div className="sl" style={{ marginTop: 0 }}>
-=======
-        <div className="sl">
->>>>>>> b37e070b6c9c56c702e75cbe1f18470021744b22
           <span className={l === "ru" ? "on" : ""} onClick={() => sl("ru")}>RU</span>
           <span className={l === "en" ? "on" : ""} onClick={() => sl("en")}>EN</span>
         </div>
@@ -490,13 +420,8 @@ export default function App() {
           <h1>{t.h1}</h1>
           <p className="lead">{t.h2}</p>
           <div className="stats">
-<<<<<<< HEAD
             <div className="st"><big style={{ color: mc }}><CountUp to={1122137} /></big><small>{t.s[0]}</small></div>
             <div className="st"><big style={{ color: vc }}><CountUp to={1461877} /></big><small>{t.s[1]}</small></div>
-=======
-            <div className="st"><big style={{ color: M }}><CountUp to={1122137} /></big><small>{t.s[0]}</small></div>
-            <div className="st"><big style={{ color: V }}><CountUp to={1461877} /></big><small>{t.s[1]}</small></div>
->>>>>>> b37e070b6c9c56c702e75cbe1f18470021744b22
             <div className="st"><big style={{ color: "var(--ac)" }}><CountUp to={2.72} dec={2} suffix={l === "ru" ? " млн" : " M"} /></big><small>{t.s[2]}</small></div>
           </div>
           <div className="tags">
@@ -504,7 +429,6 @@ export default function App() {
           </div>
         </section>
 
-<<<<<<< HEAD
         <section id="guide" style={{ padding: "10px 20px 40px" }}>
           <div className="guide-card">
             <h2>{guideText.title}</h2>
@@ -520,8 +444,6 @@ export default function App() {
           </div>
         </section>
 
-=======
->>>>>>> b37e070b6c9c56c702e75cbe1f18470021744b22
         <section id="abs">
           <Head t={t.nav[1]} s="" />
           <div className="cols">{t.abs}</div>
@@ -536,21 +458,13 @@ export default function App() {
               rot={1}
               labels={reg.map(x => (l === "en" ? RE[x[0]] : x[0]))}
               vl={l === "en" ? "Value" : "Значение"}
-<<<<<<< HEAD
               series={[{ v: reg.map(x => x[1]), c: rs === "M" ? mc : vc }]}
-=======
-              series={[{ v: reg.map(x => x[1]), c: rs === "M" ? M : V }]}
->>>>>>> b37e070b6c9c56c702e75cbe1f18470021744b22
               max={Math.max(...reg.map(x => x[1])) * 1.15}
               fmt={x => (rm === "d" ? x.toFixed(3) : Math.round(x).toLocaleString())}
             />
           </div>
           <div className="kpis">
-<<<<<<< HEAD
             {[["1.031", mc], ["2.12", vc], ["0.009", "var(--mu)"]].map(([n, c], i) => (
-=======
-            {[["1.031", M], ["2.12", V], ["0.009", "#a1a1aa"]].map(([n, c], i) => (
->>>>>>> b37e070b6c9c56c702e75cbe1f18470021744b22
               <div className="st" key={i}><big style={{ color: c }}>{n}</big><small>{t.k[i]}</small></div>
             ))}
           </div>
@@ -570,21 +484,13 @@ export default function App() {
               <div style={{ minWidth: "620px" }}>
                 <Bars
                   labels={dm === "y" ? Y : t.mo}
-<<<<<<< HEAD
                   series={dm === "y" ? [{ v: MY, c: mc }, { v: VY, c: vc }] : [{ v: MM, c: mc }, { v: VM, c: vc }]}
-=======
-                  series={dm === "y" ? [{ v: MY, c: M }, { v: VY, c: V }] : [{ v: MM, c: M }, { v: VM, c: V }]}
->>>>>>> b37e070b6c9c56c702e75cbe1f18470021744b22
                   max={dm === "y" ? 260 : 270}
                   fmt={x => x + "K"}
                 />
               </div>
             </div>
-<<<<<<< HEAD
             <Legend mc={mc} vc={vc} />
-=======
-            <Legend />
->>>>>>> b37e070b6c9c56c702e75cbe1f18470021744b22
           </div>
         </section>
 
@@ -592,13 +498,8 @@ export default function App() {
           <Head t={t.alt} s={t.alts} />
           <div className="card">
             <h3>{t.altt}</h3>
-<<<<<<< HEAD
             <Bars labels={["0–200", "201–500", "501–1500", "1501–2500", "2501–4500", "4500+"]} series={[{ v: [0.41, 0.445, 0.39, 0.083, 0.002, 0], c: mc }, { v: [0.49, 0.615, 0.54, 0.092, 0.004, 0], c: vc }]} max={0.8} fmt={x => x.toFixed(2)} />
             <Legend mc={mc} vc={vc} />
-=======
-            <Bars labels={["0–200", "201–500", "501–1500", "1501–2500", "2501–4500", "4500+"]} series={[{ v: [0.41, 0.445, 0.39, 0.083, 0.002, 0], c: M }, { v: [0.49, 0.615, 0.54, 0.092, 0.004, 0], c: V }]} max={0.8} fmt={x => x.toFixed(2)} />
-            <Legend />
->>>>>>> b37e070b6c9c56c702e75cbe1f18470021744b22
           </div>
           <div className="kpis">
             {[["0–200 м", "460 171", "549 663", 67], ["201–500 м", "466 521", "644 382", 73], ["501–1500 м", "191 588", "263 539", 64]].map(a => (
@@ -618,11 +519,7 @@ export default function App() {
             <h3>{l === "en" ? "Normalized density by land cover" : "Нормализованная плотность по типам покрова"}</h3>
             <p className="sub">{t.covs}</p>
             <Bars rot={1} labels={l === "en" ? CLE : CL} series={cs} max={8} fmt={x => x.toFixed(2)} />
-<<<<<<< HEAD
             <Legend m={cv !== "V" ? 1 : 0} v={cv !== "M" ? 1 : 0} mc={mc} vc={vc} />
-=======
-            <Legend m={cv !== "V" ? 1 : 0} v={cv !== "M" ? 1 : 0} />
->>>>>>> b37e070b6c9c56c702e75cbe1f18470021744b22
           </div>
         </section>
 
@@ -630,13 +527,8 @@ export default function App() {
           <Head t={t.inf} s={t.infs} />
           <div className="card">
             <h3>{t.inft}</h3>
-<<<<<<< HEAD
             <Line l={l} mc={mc} vc={vc} />
             <Legend mc={mc} vc={vc} />
-=======
-            <Line l={l} />
-            <Legend />
->>>>>>> b37e070b6c9c56c702e75cbe1f18470021744b22
           </div>
           <div className="note"><b>{t.key}</b>{t.infn}</div>
         </section>
@@ -668,19 +560,11 @@ export default function App() {
                         <u className={k ? "kz" : ""} style={{ width: w }}></u>
                         <i className={k ? "kz" : ""} style={{ left: w, transform: isHovered ? "scale(1.35)" : "scale(1)" }}></i>
                       </div>
-<<<<<<< HEAD
                       <b style={{ color: k ? mc : isHovered ? "var(--tx-strong)" : "var(--mu)" }}>{c[1].toFixed(2)}</b>
                     </div>
                     <div className="lp-info">
                       <em>{i + 1}</em>
                       <span style={{ color: k ? "var(--tx-strong)" : isHovered ? "var(--tx-strong)" : "var(--mu)" }}>{l === "en" ? CN[c[0]] || c[0] : c[0]}</span>
-=======
-                      <b style={{ color: k ? M : isHovered ? "#fff" : "var(--mu)" }}>{c[1].toFixed(2)}</b>
-                    </div>
-                    <div className="lp-info">
-                      <em>{i + 1}</em>
-                      <span style={{ color: k ? "#fff" : isHovered ? "#ffffff" : "var(--mu)" }}>{l === "en" ? CN[c[0]] || c[0] : c[0]}</span>
->>>>>>> b37e070b6c9c56c702e75cbe1f18470021744b22
                     </div>
                   </div>
                 );
@@ -701,12 +585,7 @@ export default function App() {
           ))}
         </section>
 
-<<<<<<< HEAD
         <footer>
-=======
-        {/* Обычный чистый футер без тяжелых шейдеров */}
-        <footer style={{ padding: "40px 20px", textAlign: "center", color: "var(--mu)", borderTop: "1px solid rgba(255,255,255,0.06)", fontSize: "13px" }}>
->>>>>>> b37e070b6c9c56c702e75cbe1f18470021744b22
           NASA FIRMS · ESA WorldCover 2021 · OpenStreetMap · NASADEM · HDX
           <br />
           2001–2024 · MODIS (MCD14ML) · VIIRS (VNP14IMGTDL/VJ114IMGTDL)
