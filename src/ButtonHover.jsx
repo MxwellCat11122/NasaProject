@@ -14,14 +14,8 @@ export default function LiquidCarveButton(props) {
 
     const [isHovered, setIsHovered] = React.useState(false);
 
-<<<<<<< HEAD
     const bgStyle = isActive ? "var(--ac)" : isHovered ? "var(--hover-bg)" : "var(--card-alt)";
     const textColor = isActive ? "var(--ac-tx)" : "var(--tx-strong)";
-=======
-    // Активное состояние — белая кнопка с черным текстом. Неактивное — черный фон, белый текст.
-    const bgStyle = isActive ? "#ffffff" : isHovered ? "#18181b" : "#000000";
-    const textColor = isActive ? "#000000" : "#ffffff";
->>>>>>> b37e070b6c9c56c702e75cbe1f18470021744b22
 
     return ( 
         <div 
@@ -44,11 +38,7 @@ export default function LiquidCarveButton(props) {
                 userSelect: "none", 
                 boxSizing: "border-box", 
                 overflow: "hidden", 
-<<<<<<< HEAD
                 border: "1px solid var(--bd)", 
-=======
-                border: "none", 
->>>>>>> b37e070b6c9c56c702e75cbe1f18470021744b22
                 outline: "none",
                 transition: "background-color 0.2s ease, transform 0.15s ease",
                 transform: isHovered && !isActive ? "translateY(-1px)" : "none",
