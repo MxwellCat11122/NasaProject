@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect, useLayoutEffect, useRef } from 'react';
-import { M, V, T, R, Y, MY, VY, MM, VM, CL, CM, CV, C, CN, CLE, RE } from './data';
+import { M, V, T, R, Y, MY, VY, MM, VM, CL, CM, CV, C, CN, CN_KZ, CLE, CLE_KZ, RE } from './data';
 import MapSection from "./MapSection";
 import DirLink from './DirLink';
 import { MT } from './mapdata';
@@ -198,7 +198,7 @@ const Select = ({ options, value, onChange }) => {
 
 function Line({ l, mc = M, vc = V }) {
   const [hoveredIndex, setHoveredIndex] = useState(null);
-  const L = l === "en" ? ["0 m", "500 m", "1 km", "2 km", "5 km", "10 km", ">10 km"] : ["0 м", "500 м", "1 км", "2 км", "5 км", "10 км", ">10 км"];
+  const L = l === "en" ? ["0 m", "500 m", "1 km", "2 km", "5 km", "10 km", ">10 km"] : l === "kz" ? ["0 м", "500 м", "1 км", "2 км", "5 км", "10 км", ">10 км"] : ["0 м", "500 м", "1 км", "2 км", "5 км", "10 км", ">10 км"];
   const Vv = [2.497, 0.53, 0.6, 0.59, 0.71, 0.6, 0.37];
   const Mm = [0.36, 0.435, 0.48, 0.5, 0.47, 0.515, 0.27];
   const X = i => 50 + i * 100;
@@ -364,7 +364,7 @@ export default function App() {
     document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
   };
 
-  const brandTitle = l === "en" ? "PVM-PA (Spatio-Temporal Fire Activity Monitoring)" : "ПВМ-ПА (Пространственно-Временной Мониторинг Пожарной Активности)";
+  const brandTitle = l === "en" ? "PVM-PA (Spatio-Temporal Fire Activity Monitoring)" : l === "kz" ? "ӨҚА-ТМ (Өрт қауіптілігін кеңістіктік-уақыттық мониторингі)" : "ПВМ-ПА (Пространственно-Временной Мониторинг Пожарной Активности)";
 
   const guideText = l === "en" ? {
     title: "How to use this dashboard",
@@ -373,6 +373,14 @@ export default function App() {
       { title: "1. Navigation & Menu", desc: "Use the left panel (or hamburger menu on mobile) to jump between research sections, or change the theme and language." },
       { title: "2. Interactive Risk Map", desc: "Select any month at the map section to evaluate historical wildfire probabilities and click 'My location' to check risks near you." },
       { title: "3. Charts & Analytics", desc: "Hover over charts and graphs to view exact values, compare MODIS and VIIRS satellite sensors, and analyze elevation/land cover." }
+    ]
+  } : l === "kz" ? {
+    title: "Бақылау панелін қалай пайдалану керек",
+    sub: "Спутниктік аналитика мен өрт қауіптерін тиімді зерттеуге арналған қысқаша нұсқаулық.",
+    steps: [
+      { title: "1. Навигация және мәзір", desc: "Зерттеу бөлімдері арасында жылдам өту, тілді немесе тақырыпты өзгерту үшін сол жақ панельді пайдаланыңыз." },
+      { title: "2. Интерактивті қауіп картасы", desc: "Тарихи өрт қаупін бағалау үшін картадан қажетті айды таңдап, өңіріңізді тексеру үшін геолокация батырмасын басыңыз." },
+      { title: "3. Графиктер мен аналитика", desc: "Нақты мәндерді көру, MODIS пен VIIRS сенсорларын салыстыру үшін графиктер мен диаграммаларға курсорды апарыңыз." }
     ]
   } : {
     title: "Инструкция по использованию",
@@ -402,14 +410,15 @@ export default function App() {
         </div>
 
         <div className="sl" style={{ marginTop: "auto", marginBottom: "4px" }}>
-          <span className={theme === "dark" ? "on" : ""} onClick={() => setTheme("dark")}>{l === "en" ? "Dark" : "Тёмная"}</span>
-          <span className={theme === "light" ? "on" : ""} onClick={() => setTheme("light")}>{l === "en" ? "Light" : "Светлая"}</span>
-          <span className={theme === "blue" ? "on" : ""} onClick={() => setTheme("blue")}>{l === "en" ? "Neon Blue" : "Неоново-синяя"}</span>
+          <span className={theme === "dark" ? "on" : ""} onClick={() => setTheme("dark")}>{l === "en" ? "Dark" : l === "kz" ? "Қара" : "Тёмная"}</span>
+          <span className={theme === "light" ? "on" : ""} onClick={() => setTheme("light")}>{l === "en" ? "Light" : l === "kz" ? "Ақ" : "Светлая"}</span>
+          <span className={theme === "blue" ? "on" : ""} onClick={() => setTheme("blue")}>{l === "en" ? "Neon Blue" : l === "kz" ? "Көк" : "Неоново-синяя"}</span>
         </div>
 
         <div className="sl" style={{ marginTop: 0 }}>
           <span className={l === "ru" ? "on" : ""} onClick={() => sl("ru")}>RU</span>
           <span className={l === "en" ? "on" : ""} onClick={() => sl("en")}>EN</span>
+          <span className={l === "kz" ? "on" : ""} onClick={() => sl("kz")}>KZ</span>
         </div>
       </header>
 
@@ -422,7 +431,7 @@ export default function App() {
           <div className="stats">
             <div className="st"><big style={{ color: mc }}><CountUp to={1122137} /></big><small>{t.s[0]}</small></div>
             <div className="st"><big style={{ color: vc }}><CountUp to={1461877} /></big><small>{t.s[1]}</small></div>
-            <div className="st"><big style={{ color: "var(--ac)" }}><CountUp to={2.72} dec={2} suffix={l === "ru" ? " млн" : " M"} /></big><small>{t.s[2]}</small></div>
+            <div className="st"><big style={{ color: "var(--ac)" }}><CountUp to={2.72} dec={2} suffix={l === "ru" ? " млн" : l === "kz" ? " млн" : " M"} /></big><small>{t.s[2]}</small></div>
           </div>
           <div className="tags">
             {["MODIS", "VIIRS", "FIRMS", "QGIS", "Python", "ESA WorldCover"].map(x => (<span key={x}>{x}</span>))}
@@ -457,7 +466,7 @@ export default function App() {
             <Bars
               rot={1}
               labels={reg.map(x => (l === "en" ? RE[x[0]] : x[0]))}
-              vl={l === "en" ? "Value" : "Значение"}
+              vl={l === "en" ? "Value" : l === "kz" ? "Мәні" : "Значение"}
               series={[{ v: reg.map(x => x[1]), c: rs === "M" ? mc : vc }]}
               max={Math.max(...reg.map(x => x[1])) * 1.15}
               fmt={x => (rm === "d" ? x.toFixed(3) : Math.round(x).toLocaleString())}
@@ -504,7 +513,7 @@ export default function App() {
           <div className="kpis">
             {[["0–200 м", "460 171", "549 663", 67], ["201–500 м", "466 521", "644 382", 73], ["501–1500 м", "191 588", "263 539", 64]].map(a => (
               <div className="card" key={a[0]}>
-                <h3>{l === "en" ? a[0].replace(" м", " m") : a[0]}</h3>
+                <h3>{l === "en" ? a[0].replace(" м", " m") : l === "kz" ? a[0].replace(" м", " м") : a[0]}</h3>
                 <small style={{ color: "var(--mu)" }}>MODIS: {a[1]} · VIIRS: {a[2]}</small>
                 <div className="pb"><i style={{ width: a[3] + "%" }}></i></div>
               </div>
@@ -516,9 +525,9 @@ export default function App() {
           <Head t={t.cov} s="ESA WorldCover 2021" />
           <Tog opts={[["B", t.both], ["M", "MODIS"], ["V", "VIIRS"]]} val={cv} set={scv} />
           <div className="card">
-            <h3>{l === "en" ? "Normalized density by land cover" : "Нормализованная плотность по типам покрова"}</h3>
+            <h3>{l === "en" ? "Normalized density by land cover" : l === "kz" ? "Жер жабыны бойынша қалыптасқан тығыздық" : "Нормализованная плотность по типам покрова"}</h3>
             <p className="sub">{t.covs}</p>
-            <Bars rot={1} labels={l === "en" ? CLE : CL} series={cs} max={8} fmt={x => x.toFixed(2)} />
+            <Bars rot={1} labels={l === "en" ? CLE : l === "kz" ? CLE_KZ : CL} series={cs} max={8} fmt={x => x.toFixed(2)} />
             <Legend m={cv !== "V" ? 1 : 0} v={cv !== "M" ? 1 : 0} mc={mc} vc={vc} />
           </div>
         </section>
@@ -564,7 +573,7 @@ export default function App() {
                     </div>
                     <div className="lp-info">
                       <em>{i + 1}</em>
-                      <span style={{ color: k ? "var(--tx-strong)" : isHovered ? "var(--tx-strong)" : "var(--mu)" }}>{l === "en" ? CN[c[0]] || c[0] : c[0]}</span>
+                      <span style={{ color: k ? "var(--tx-strong)" : isHovered ? "var(--tx-strong)" : "var(--mu)" }}>{l === "en" ? CN[c[0]] || c[0] : l === "kz" ? CN_KZ[c[0]] || c[0] : c[0]}</span>
                     </div>
                   </div>
                 );

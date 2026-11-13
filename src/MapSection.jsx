@@ -6,7 +6,6 @@ import TerraDusk from './TerraDusk';
 
 const KZ_BOUNDS = [[40.4, 46.4], [55.6, 87.5]];
 
-// Грубая проверка «точка в пределах Казахстана»
 const insideKZ = ([lat, lon]) =>
   lat > 40.5 && lat < 55.5 && lon > 46.5 && lon < 87.4;
 
@@ -22,8 +21,8 @@ export default function MapSection({ l, month, setMonth, months }) {
   const layerRef = useRef(null);
   const meRef = useRef(null);
 
-  const [status, setStatus] = useState("idle"); // idle | busy | denied | unsup | ok
-  const [me, setMe] = useState(null); // { ll, region, d, inside }
+  const [status, setStatus] = useState("idle");
+  const [me, setMe] = useState(null);
 
   const rows = useMemo(
     () =>
@@ -31,7 +30,6 @@ export default function MapSection({ l, month, setMonth, months }) {
     [month]
   );
 
-  // Создание карты (один раз)
   useEffect(() => {
     const map = L.map(boxRef.current, {
       zoomControl: false,
@@ -42,17 +40,14 @@ export default function MapSection({ l, month, setMonth, months }) {
     });
     map.fitBounds(KZ_BOUNDS);
     L.control.zoom({ position: "bottomright" }).addTo(map);
-    // OpenStreetMap не требует ключа; тёмный вид даёт CSS-фильтр на .leaflet-tile-pane
     L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
       attribution: "© OpenStreetMap contributors",
       maxZoom: 19
     }).addTo(map);
     layerRef.current = L.layerGroup().addTo(map);
     mapRef.current = map;
-    // секция появляется с анимацией — пересчитываем размер после неё
     const fix = setTimeout(() => map.invalidateSize(), 1000);
 
-    // колесо мыши включаем только после клика, чтобы не мешать прокрутке страницы
     map.on("click", () => map.scrollWheelZoom.enable());
     map.on("mouseout", () => map.scrollWheelZoom.disable());
 
@@ -65,7 +60,6 @@ export default function MapSection({ l, month, setMonth, months }) {
     };
   }, []);
 
-  // Перерисовка очагов при смене месяца или языка
   useEffect(() => {
     const g = layerRef.current;
     if (!g) return;
@@ -73,7 +67,6 @@ export default function MapSection({ l, month, setMonth, months }) {
     rows.forEach(r => {
       const lv = level(r.v);
       const c = LEVEL_COLOR[lv];
-      // мягкое «тепловое» свечение
       L.circle(r.ll, {
         radius: 45000 + r.v * 4200,
         stroke: false,
@@ -88,7 +81,6 @@ export default function MapSection({ l, month, setMonth, months }) {
         fillOpacity: lv === 0 ? 0.12 : 0.25,
         interactive: false
       }).addTo(g);
-      // ядро-точка с пульсацией для высоких уровней
       const size = 10 + Math.round(r.v / 6);
       const icon = L.divIcon({
         className: "fp-wrap",
@@ -104,7 +96,6 @@ export default function MapSection({ l, month, setMonth, months }) {
     });
   }, [rows, l, t]);
 
-  // Маркер пользователя
   useEffect(() => {
     const map = mapRef.current;
     if (!map) return;
