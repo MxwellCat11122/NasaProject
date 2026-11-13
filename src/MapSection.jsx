@@ -2,14 +2,6 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { REGIONS, MT, risk, level, LEVEL_COLOR, dist } from './mapdata';
-<<<<<<< HEAD
-
-const KZ_BOUNDS = [[40.4, 46.4], [55.6, 87.5]];
-
-const insideKZ = ([lat, lon]) =>
-  lat > 40.5 && lat < 55.5 && lon > 46.5 && lon < 87.4;
-
-=======
 import TerraDusk from './TerraDusk';
 
 const KZ_BOUNDS = [[40.4, 46.4], [55.6, 87.5]];
@@ -23,7 +15,6 @@ const GLOBE_TXT = {
   en: { t: "Earth from space", s: "Drag to rotate. The sun follows your cursor." }
 };
 
->>>>>>> b37e070b6c9c56c702e75cbe1f18470021744b22
 export default function MapSection({ l, month, setMonth, months }) {
   const t = MT[l];
   const boxRef = useRef(null);
@@ -31,13 +22,8 @@ export default function MapSection({ l, month, setMonth, months }) {
   const layerRef = useRef(null);
   const meRef = useRef(null);
 
-<<<<<<< HEAD
-  const [status, setStatus] = useState("idle");
-  const [me, setMe] = useState(null);
-=======
   const [status, setStatus] = useState("idle"); // idle | busy | denied | unsup | ok
   const [me, setMe] = useState(null); // { ll, region, d, inside }
->>>>>>> b37e070b6c9c56c702e75cbe1f18470021744b22
 
   const rows = useMemo(
     () =>
@@ -45,10 +31,7 @@ export default function MapSection({ l, month, setMonth, months }) {
     [month]
   );
 
-<<<<<<< HEAD
-=======
   // Создание карты (один раз)
->>>>>>> b37e070b6c9c56c702e75cbe1f18470021744b22
   useEffect(() => {
     const map = L.map(boxRef.current, {
       zoomControl: false,
@@ -59,25 +42,17 @@ export default function MapSection({ l, month, setMonth, months }) {
     });
     map.fitBounds(KZ_BOUNDS);
     L.control.zoom({ position: "bottomright" }).addTo(map);
-<<<<<<< HEAD
-=======
     // OpenStreetMap не требует ключа; тёмный вид даёт CSS-фильтр на .leaflet-tile-pane
->>>>>>> b37e070b6c9c56c702e75cbe1f18470021744b22
     L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
       attribution: "© OpenStreetMap contributors",
       maxZoom: 19
     }).addTo(map);
     layerRef.current = L.layerGroup().addTo(map);
     mapRef.current = map;
-<<<<<<< HEAD
-    const fix = setTimeout(() => map.invalidateSize(), 1000);
-
-=======
     // секция появляется с анимацией — пересчитываем размер после неё
     const fix = setTimeout(() => map.invalidateSize(), 1000);
 
     // колесо мыши включаем только после клика, чтобы не мешать прокрутке страницы
->>>>>>> b37e070b6c9c56c702e75cbe1f18470021744b22
     map.on("click", () => map.scrollWheelZoom.enable());
     map.on("mouseout", () => map.scrollWheelZoom.disable());
 
@@ -90,10 +65,7 @@ export default function MapSection({ l, month, setMonth, months }) {
     };
   }, []);
 
-<<<<<<< HEAD
-=======
   // Перерисовка очагов при смене месяца или языка
->>>>>>> b37e070b6c9c56c702e75cbe1f18470021744b22
   useEffect(() => {
     const g = layerRef.current;
     if (!g) return;
@@ -101,10 +73,7 @@ export default function MapSection({ l, month, setMonth, months }) {
     rows.forEach(r => {
       const lv = level(r.v);
       const c = LEVEL_COLOR[lv];
-<<<<<<< HEAD
-=======
       // мягкое «тепловое» свечение
->>>>>>> b37e070b6c9c56c702e75cbe1f18470021744b22
       L.circle(r.ll, {
         radius: 45000 + r.v * 4200,
         stroke: false,
@@ -119,10 +88,7 @@ export default function MapSection({ l, month, setMonth, months }) {
         fillOpacity: lv === 0 ? 0.12 : 0.25,
         interactive: false
       }).addTo(g);
-<<<<<<< HEAD
-=======
       // ядро-точка с пульсацией для высоких уровней
->>>>>>> b37e070b6c9c56c702e75cbe1f18470021744b22
       const size = 10 + Math.round(r.v / 6);
       const icon = L.divIcon({
         className: "fp-wrap",
@@ -138,10 +104,7 @@ export default function MapSection({ l, month, setMonth, months }) {
     });
   }, [rows, l, t]);
 
-<<<<<<< HEAD
-=======
   // Маркер пользователя
->>>>>>> b37e070b6c9c56c702e75cbe1f18470021744b22
   useEffect(() => {
     const map = mapRef.current;
     if (!map) return;
@@ -190,10 +153,7 @@ export default function MapSection({ l, month, setMonth, months }) {
 
   const myRisk = me ? risk(me.region, month) : 0;
   const myLv = level(myRisk);
-<<<<<<< HEAD
-=======
   const gt = GLOBE_TXT[l] || GLOBE_TXT.ru;
->>>>>>> b37e070b6c9c56c702e75cbe1f18470021744b22
 
   return (
     <>
@@ -220,13 +180,8 @@ export default function MapSection({ l, month, setMonth, months }) {
       </div>
 
       <div className="map-row">
-<<<<<<< HEAD
-        <div className="map-card card" style={{ width: "100%", margin: 0 }}>
-          <div ref={boxRef} className="map-box" style={{ height: "520px" }} />
-=======
         <div className="map-card card">
           <div ref={boxRef} className="map-box" />
->>>>>>> b37e070b6c9c56c702e75cbe1f18470021744b22
           <div className="map-leg">
             <span>{t.legend}</span>
             {t.lvl.map((n, i) => (
@@ -237,8 +192,6 @@ export default function MapSection({ l, month, setMonth, months }) {
             ))}
           </div>
         </div>
-<<<<<<< HEAD
-=======
 
         <div className="globe-card card">
           <div className="globe-view">
@@ -257,7 +210,6 @@ export default function MapSection({ l, month, setMonth, months }) {
             <small>{gt.s}</small>
           </div>
         </div>
->>>>>>> b37e070b6c9c56c702e75cbe1f18470021744b22
       </div>
 
       {status === "denied" && <div className="note warn">{t.denied}</div>}
