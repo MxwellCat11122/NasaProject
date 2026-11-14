@@ -26,12 +26,77 @@ const loadFoci = () => {
 
 const round4 = n => Math.round(n * 1e4) / 1e4;
 
-const frpColor = frp => {
-  if (frp >= 30) return "#ff3b1f";
-  if (frp >= 10) return "#ff7a2f";
-  if (frp >= 3) return "#f5c542";
-  return "#38bdf8";
+/* ---------- FIRMS: цвета, классы мощности, тексты, тултип ---------- */
+
+const FRP_COLORS = ["#38bdf8", "#f5c542", "#ff7a2f", "#ff3b1f"];
+const frpBand = frp => (frp >= 30 ? 3 : frp >= 10 ? 2 : frp >= 3 ? 1 : 0);
+const frpColor = frp => FRP_COLORS[frpBand(frp)];
+
+const FIRE_TXT = {
+  ru: {
+    legend: "FIRMS · мощность (FRP)",
+    bands: ["< 3 МВт · слабый", "3–10 МВт · умеренный", "10–30 МВт · сильный", "≥ 30 МВт · очень мощный"],
+    short: ["< 3 МВт", "3–10", "10–30", "≥ 30 МВт"],
+    explain:
+      "Синяя точка — слабый очаг: тлеющий пожар, пал травы или ложное срабатывание. Наведи на точку — увидишь детали.",
+    date: "Дата", time: "Время", sat: "Спутник", frp: "FRP", level: "Класс",
+    conf: "Достоверность", coords: "Координаты", mw: "МВт", utc: "UTC",
+    confs: { l: "низкая", n: "средняя", h: "высокая" },
+  },
+  en: {
+    legend: "FIRMS · power (FRP)",
+    bands: ["< 3 MW · weak", "3–10 MW · moderate", "10–30 MW · strong", "≥ 30 MW · very intense"],
+    short: ["< 3 MW", "3–10", "10–30", "≥ 30 MW"],
+    explain:
+      "Blue dot is a weak fire: smouldering, grass burning or a false detection. Hover a dot for details.",
+    date: "Date", time: "Time", sat: "Satellite", frp: "FRP", level: "Class",
+    conf: "Confidence", coords: "Coordinates", mw: "MW", utc: "UTC",
+    confs: { l: "low", n: "nominal", h: "high" },
+  },
+  kz: {
+    legend: "FIRMS · қуат (FRP)",
+    bands: ["< 3 МВт · әлсіз", "3–10 МВт · орташа", "10–30 МВт · күшті", "≥ 30 МВт · өте күшті"],
+    short: ["< 3 МВт", "3–10", "10–30", "≥ 30 МВт"],
+    explain:
+      "Көк нүкте — әлсіз ошақ: баяу жану, шөп өртеу немесе жалған белгі. Мәлімет үшін нүктеге меңзерді апарыңыз.",
+    date: "Күні", time: "Уақыты", sat: "Спутник", frp: "FRP", level: "Класс",
+    conf: "Сенімділік", coords: "Координаттар", mw: "МВт", utc: "UTC",
+    confs: { l: "төмен", n: "орташа", h: "жоғары" },
+  },
 };
+
+const SAT_NAMES = {
+  T: "Terra · MODIS", TERRA: "Terra · MODIS",
+  A: "Aqua · MODIS", AQUA: "Aqua · MODIS",
+  N: "Suomi NPP · VIIRS", "1": "NOAA-20 · VIIRS", "2": "NOAA-21 · VIIRS",
+};
+
+const esc = s =>
+  String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+
+const fireTipHtml = (p, x) => {
+  const rows = [];
+  if (p.acq_date) rows.push([x.date, p.acq_date]);
+  if (p.acq_time !== undefined && p.acq_time !== null && p.acq_time !== "") {
+    const s = String(p.acq_time).padStart(4, "0");
+    rows.push([x.time, `${s.slice(0, 2)}:${s.slice(2, 4)} ${x.utc}`]);
+  }
+  if (p.satellite !== undefined && p.satellite !== null && p.satellite !== "") {
+    const key = String(p.satellite).toUpperCase();
+    rows.push([x.sat, SAT_NAMES[key] || String(p.satellite)]);
+  }
+  const frp = p.frp || 0;
+  rows.push([x.frp, `${frp.toFixed(1)} ${x.mw}`]);
+  rows.push([x.level, x.bands[frpBand(frp)].split(" · ")[1]]);
+  if (p.confidence !== undefined && p.confidence !== null && p.confidence !== "") {
+    const c = String(p.confidence).toLowerCase();
+    rows.push([x.conf, x.confs[c] || `${p.confidence}%`]);
+  }
+  rows.push([x.coords, `${p.latitude.toFixed(3)}, ${p.longitude.toFixed(3)}`]);
+  return rows.map(([k, v]) => `<div><small>${esc(k)}:</small> <b>${esc(v)}</b></div>`).join("");
+};
+
+/* ---------- Компонент ---------- */
 
 export default function MapSection({
   l,
@@ -142,10 +207,10 @@ export default function MapSection({
     const map = L.map(boxRef.current, {
       zoomControl: false,
       attributionControl: true,
-      scrollWheelZoom: false,
+      scrollWheelZoom: true,
       minZoom: 4,
       maxZoom: 11,
-      preferCanvas: true
+      renderer: L.canvas({ tolerance: 10 })
     });
     map.fitBounds(KZ_BOUNDS);
     L.control.zoom({ position: "bottomright" }).addTo(map);
@@ -160,11 +225,9 @@ export default function MapSection({
     const fix = setTimeout(() => map.invalidateSize(), 1000);
 
     map.on("click", e => {
-      map.scrollWheelZoom.enable();
       if (!pinModeRef.current) return;
       addRef.current([e.latlng.lat, e.latlng.lng]);
     });
-    map.on("mouseout", () => map.scrollWheelZoom.disable());
 
     return () => {
       clearTimeout(fix);
@@ -177,24 +240,77 @@ export default function MapSection({
     };
   }, []);
 
-  // Отрисовка точек архива на Canvas без создания тултипов на каждую точку
+  // Точки архива FIRMS: один общий тултип; мышь — наведение, телефон — тап
   useEffect(() => {
     const g = firesRef.current;
-    if (!g) return;
+    const map = mapRef.current;
+    if (!g || !map) return;
     g.clearLayers();
+
+    const x = FIRE_TXT[l] || FIRE_TXT.ru;
+    const tip = L.tooltip({ className: "fp-tip", direction: "top" });
+    const canHover = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
+    let active = null;
+
+    const baseStyle = { weight: 1, fillOpacity: 0.7 };
+    const hoverStyle = { weight: 2, fillOpacity: 1 };
+
+    const hide = () => {
+      map.removeLayer(tip);
+      if (active) {
+        active.setStyle(baseStyle);
+        active = null;
+      }
+    };
+
+    const show = (m, p, radius) => {
+      if (active && active !== m) active.setStyle(baseStyle);
+      active = m;
+      tip.setContent(fireTipHtml(p, x));
+      tip.setLatLng(m.getLatLng());
+      tip.options.offset = [0, -radius];
+      map.addLayer(tip);
+      m.setStyle(hoverStyle);
+    };
+
     visibleArchivePoints.forEach(p => {
       const color = frpColor(p.frp);
       const radius = Math.min(8, Math.max(2.5, 2.5 + Math.sqrt(Math.max(0, p.frp)) * 0.55));
-      L.circleMarker([p.latitude, p.longitude], {
+      const m = L.circleMarker([p.latitude, p.longitude], {
         radius,
         color,
         weight: 1,
         fillColor: color,
         fillOpacity: 0.7,
-        interactive: false
-      }).addTo(g);
+        interactive: true,
+        bubblingMouseEvents: false
+      });
+
+      if (canHover) {
+        m.on("mouseover", () => show(m, p, radius));
+        m.on("mouseout", hide);
+      }
+
+      m.on("click", e => {
+        // в режиме «Отметить очаг» тап по точке ставит метку, как и по карте
+        if (pinModeRef.current) {
+          addRef.current([e.latlng.lat, e.latlng.lng]);
+          return;
+        }
+        show(m, p, radius);
+      });
+
+      m.addTo(g);
     });
-  }, [visibleArchivePoints]);
+
+    // тап по пустому месту карты закрывает подсказку
+    map.on("click", hide);
+
+    return () => {
+      map.off("click", hide);
+      map.removeLayer(tip);
+    };
+  }, [visibleArchivePoints, l]);
 
   useEffect(() => {
     const g = layerRef.current;
@@ -318,6 +434,7 @@ export default function MapSection({
 
   const myRisk = me ? risk(me.region, month) : 0;
   const myLv = level(myRisk);
+  const fx = FIRE_TXT[l] || FIRE_TXT.ru;
 
   return (
     <>
@@ -390,6 +507,19 @@ export default function MapSection({
           </div>
         </div>
       </div>
+
+      {showArchive && (
+        <div className="frp-leg">
+          <span className="frp-leg__title">{fx.legend}</span>
+          {fx.short.map((b, i) => (
+            <span className="frp-leg__item" key={i}>
+              <b style={{ background: FRP_COLORS[i] }} />
+              {b}
+            </span>
+          ))}
+          <span className="frp-leg__note">{fx.explain}</span>
+        </div>
+      )}
 
       {status === "denied" && <div className="note warn">{t.denied}</div>}
       {status === "unsup" && <div className="note warn">{t.unsup}</div>}

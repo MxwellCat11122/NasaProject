@@ -10,6 +10,7 @@ import SpinImage from './SpinImage';
 import ZoomTextTunnel from './ZoomTextTunnel';
 import './App.css';
 import './extra.css';
+import AsciiFire from './AsciiFire';
 
 if (typeof window !== 'undefined' && 'scrollRestoration' in window.history) {
   window.history.scrollRestoration = 'manual';
@@ -538,7 +539,7 @@ export default function App() {
     sub: "A quick guide to explore satellite analytics and fire risks efficiently.",
     steps: [
       { title: "1. Navigation & Menu", desc: "Use the left panel (or hamburger menu on mobile) to jump between research sections, or change the theme and language." },
-      { title: "2. Interactive Risk Map", desc: "Pick a month, pin fire foci by clicking the map or entering coordinates, and read the risk report for each point. Use 'My location' to check the area around you." },
+      { title: "2. Interactive Risk Map", desc: "Pick a month, press the pin button above the map, then click the map — a risk report for that spot appears below. You can also enter coordinates manually, and 'My location' shows the risk around you. Tap a FIRMS dot to see the fire details." },
       { title: "3. Charts & Analytics", desc: "Hover over charts and graphs to view exact values, compare MODIS and VIIRS satellite sensors, and analyze elevation/land cover." }
     ]
   } : l === "kz" ? {
@@ -546,7 +547,7 @@ export default function App() {
     sub: "Спутниктік аналитика мен өрт қауіптерін тиімді зерттеуге арналған қысқаша нұсқаулық.",
     steps: [
       { title: "1. Навигация және мәзір", desc: "Зерттеу бөлімдері арасында жылдам өту, тілді немесе тақырыпты өзгерту үшін сол жақ панельді пайдаланыңыз." },
-      { title: "2. Интерактивті қауіп картасы", desc: "Айды таңдап, картаға басу немесе координат енгізу арқылы ошақтарды бекітіңіз — әр нүкте бойынша мәлімет шығады. Геолокация өз өңіріңізді көрсетеді." },
+      { title: "2. Интерактивті қауіп картасы", desc: "Айды таңдап, картаның үстіндегі белгі түймесін басыңыз, содан кейін картаны басыңыз — төменде осы нүктедегі қауіп деңгейі туралы есеп шығады. Координатты қолмен енгізуге болады, ал геолокация өз өңіріңіздегі қауіпті көрсетеді. Өрт туралы мәлімет үшін FIRMS нүктесін басыңыз." },
       { title: "3. Графиктер мен аналитика", desc: "Нақты мәндерді көру, MODIS пен VIIRS сенсорларын салыстыру үшін графиктер мен диаграммаларға курсорды апарыңыз." }
     ]
   } : {
@@ -554,7 +555,7 @@ export default function App() {
     sub: "Краткое руководство для удобного изучения спутниковой аналитики и рисков пожаров.",
     steps: [
       { title: "1. Навигация по меню", desc: "Используйте левую панель (или меню на смартфоне), чтобы быстро переходить между разделами, менять язык или тему оформления." },
-      { title: "2. Интерактивная карта рисков", desc: "Выберите месяц, прикрепите очаги кликом по карте или по координатам — по каждой точке откроются сведения. Геолокация показывает риск рядом с вами." },
+      { title: "2. Интерактивная карта рисков", desc: "Выберите месяц, нажмите «Отметить очаг», затем нажмите на карту — внизу появится отчёт с уровнем риска в этой точке. Можно ввести координаты вручную, а «Моё местоположение» покажет риск рядом с вами. Нажмите на точку FIRMS, чтобы увидеть данные о пожаре." },
       { title: "3. Графики и аналитика", desc: "Наводите курсор на столбцы и линии графиков для просмотра точных значений, сравнивайте сенсоры MODIS и VIIRS, изучайте высоты и типы почв." }
     ]
   };
@@ -793,11 +794,19 @@ export default function App() {
           ))}
         </section>
 
-        <footer>
+      <footer className="fire-footer">
+        <div className="fire-footer__flame" aria-hidden="true">
+          <AsciiFire
+            backgroundColor="transparent"
+            style={{ width: "100%", height: "100%" }}
+          />
+        </div>
+        <div className="fire-footer__text">
           NASA FIRMS · ESA WorldCover 2021 · OpenStreetMap · NASADEM · HDX
-          <br />
+        <br />
           2001–2024 · MODIS (MCD14ML) · VIIRS (VNP14IMGTDL/VJ114IMGTDL)
-        </footer>
+        </div>
+      </footer>
       </div>
     </div>
   );
