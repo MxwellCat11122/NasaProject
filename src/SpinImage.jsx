@@ -6,10 +6,12 @@ import fire from "./assets/fire.jpg";
 
 const DEFAULT_IMAGES = [fire1, fire2, fire4, fire];
 
+const clamp = (v, lo, hi) => Math.min(Math.max(v, lo), hi);
+
 export default function SpinImage({
   images = DEFAULT_IMAGES,
-  imageWidth = 130,
-  imageHeight = 130,
+  imageWidth = 180,
+  imageHeight = 180,
   direction = "anticlockwise",
   path = "curved",
   xCurve = 63,
@@ -61,10 +63,15 @@ export default function SpinImage({
     return () => cancelAnimationFrame(raf);
   }, [W, H, revsPerSec, dir]);
 
+  // Адаптация под ширину экрана: на телефоне картинки меньше, орбита шире
+  const ui = clamp(W / 560, 0.62, 1);
+  const iw = imageWidth * ui;
+  const ih = imageHeight * ui;
+  const pct = W && W < 600 ? Math.max(orbitWidthPct, 88) : orbitWidthPct;
+
   const radius =
-    (Math.max(0, Math.min(20, rounded)) / 20) *
-    (Math.min(imageWidth, imageHeight) / 2);
-  const totalW = (Math.max(0, Math.min(100, orbitWidthPct)) / 100) * W;
+    (Math.max(0, Math.min(20, rounded)) / 20) * (Math.min(iw, ih) / 2);
+  const totalW = (Math.max(0, Math.min(100, pct)) / 100) * W;
   const a = totalW / 2;
   const b = a * 0.3;
   const theta0 = Math.atan2(H, W);
@@ -74,6 +81,17 @@ export default function SpinImage({
   const cy = H / 2;
   const n = items.length;
 
+  // Реальная глубина точки орбиты внутри наклонённой плоскости.
+  // Размер картинки считаем от неё же, чтобы порядок слоёв в 3D всегда совпадал с размером.
+  const rx = (-yCurve * Math.PI) / 180;
+  const ry = (xCurve * Math.PI) / 180;
+  const sA = Math.sin(rx);
+  const cB = Math.cos(ry);
+  const sB = Math.sin(ry);
+  const kx = -sB * cosT + sA * cB * sinT; // вклад ex в глубину
+  const ky = sB * sinT + sA * cB * cosT; // вклад ey в глубину
+  const zAmp = Math.max(Math.hypot(a * kx, b * ky), 1);
+
   return (
     <div
       ref={containerRef}
@@ -82,7 +100,7 @@ export default function SpinImage({
         position: "relative",
         zIndex: 1,
         width: "100%",
-        height: "360px",
+        height: "min(360px, 85vw)",
         marginTop: "52px",
         marginBottom: "36px",
         overflow: "visible",
@@ -105,9 +123,12 @@ export default function SpinImage({
             const ey = b * Math.sin(phi);
             const x = ex * cosT - ey * sinT;
             const y = ex * sinT + ey * cosT;
-            const left = cx + x - imageWidth / 2;
-            const top = cy + y - imageHeight / 2;
-            const depth = (Math.cos(phi) + 1) / 2;
+            const left = cx + x - iw / 2;
+            const top = cy + y - ih / 2;
+
+            // 0 — самая дальняя точка орбиты, 1 — самая ближняя
+            const z = a * Math.cos(phi) * kx + b * Math.sin(phi) * ky;
+            const depth = clamp((z / zAmp + 1) / 2, 0, 1);
             const sf = path === "curved" ? 0.6 + 0.75 * depth : 1;
 
             return (
@@ -117,10 +138,9 @@ export default function SpinImage({
                   position: "absolute",
                   left,
                   top,
-                  width: imageWidth,
-                  height: imageHeight,
+                  width: iw,
+                  height: ih,
                   transform: `rotateX(${yCurve}deg) rotateY(${-xCurve}deg) scale(${sf})`,
-                  zIndex: Math.round(y),
                   borderRadius: radius,
                   overflow: "hidden",
                   background: "var(--card)",
