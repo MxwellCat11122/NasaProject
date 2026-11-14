@@ -7,6 +7,8 @@ import fire from "./assets/fire.jpg";
 const DEFAULT_IMAGES = [fire1, fire2, fire4, fire];
 
 const clamp = (v, lo, hi) => Math.min(Math.max(v, lo), hi);
+const PERSPECTIVE = 1200;
+const SAMPLES = 90;
 
 export default function SpinImage({
   images = DEFAULT_IMAGES,
@@ -63,17 +65,9 @@ export default function SpinImage({
     return () => cancelAnimationFrame(raf);
   }, [W, H, revsPerSec, dir]);
 
-  // Адаптация под ширину экрана: на телефоне картинки меньше, орбита шире
+  // --- геометрия -----------------------------------------------------------
   const ui = clamp(W / 560, 0.62, 1);
-  const iw = imageWidth * ui;
-  const ih = imageHeight * ui;
   const pct = W && W < 600 ? Math.max(orbitWidthPct, 88) : orbitWidthPct;
-
-  const radius =
-    (Math.max(0, Math.min(20, rounded)) / 20) * (Math.min(iw, ih) / 2);
-  const totalW = (Math.max(0, Math.min(100, pct)) / 100) * W;
-  const a = totalW / 2;
-  const b = a * 0.3;
   const theta0 = Math.atan2(H, W);
   const cosT = Math.cos(theta0);
   const sinT = Math.sin(theta0);
@@ -81,16 +75,62 @@ export default function SpinImage({
   const cy = H / 2;
   const n = items.length;
 
-  // Реальная глубина точки орбиты внутри наклонённой плоскости.
-  // Размер картинки считаем от неё же, чтобы порядок слоёв в 3D всегда совпадал с размером.
   const rx = (-yCurve * Math.PI) / 180;
   const ry = (xCurve * Math.PI) / 180;
+  const cA = Math.cos(rx);
   const sA = Math.sin(rx);
   const cB = Math.cos(ry);
   const sB = Math.sin(ry);
-  const kx = -sB * cosT + sA * cB * sinT; // вклад ex в глубину
-  const ky = sB * sinT + sA * cB * cosT; // вклад ey в глубину
-  const zAmp = Math.max(Math.hypot(a * kx, b * ky), 1);
+  const kx = -sB * cosT + sA * cB * sinT;
+  const ky = sB * sinT + sA * cB * cosT;
+
+  // точка орбиты: позиция в плоскости, глубина, размер и проекция на экран
+  const place = (phi, A, B) => {
+    const ex = A * Math.cos(phi);
+    const ey = B * Math.sin(phi);
+    const x = ex * cosT - ey * sinT;
+    const y = ex * sinT + ey * cosT;
+    const y1 = y * cA;
+    const z1 = y * sA;
+    const x2 = x * cB + z1 * sB;
+    const z2 = -x * sB + z1 * cB;
+    const zAmp = Math.max(Math.hypot(A * kx, B * ky), 1);
+    const depth = clamp((z2 / zAmp + 1) / 2, 0, 1);
+    const sf = path === "curved" ? 0.6 + 0.75 * depth : 1;
+    const persp = PERSPECTIVE / Math.max(PERSPECTIVE - z2, 1);
+    return { x, y, x2, y1, sf, persp, scale: sf * persp };
+  };
+
+  // замер: насколько орбита с картинками выходит за блок
+  const a0 = (Math.max(0, Math.min(100, pct)) / 100) * W * 0.5;
+  const b0 = a0 * 0.3;
+  const iw0 = imageWidth * ui;
+  const ih0 = imageHeight * ui;
+
+  let ext = 0;
+  let up = 0;
+  let down = 0;
+  if (W > 0 && H > 0) {
+    for (let k = 0; k < SAMPLES; k += 1) {
+      const p = place((k / SAMPLES) * Math.PI * 2, a0, b0);
+      ext = Math.max(ext, Math.abs(p.x2 * p.persp) + (iw0 * p.scale) / 2);
+      up = Math.max(up, -p.y1 * p.persp + (ih0 * p.scale) / 2);
+      down = Math.max(down, p.y1 * p.persp + (ih0 * p.scale) / 2);
+    }
+  }
+
+  // если не помещается по ширине — уменьшаем всю композицию целиком
+  const fit = W > 0 && ext > 0 ? clamp((W / 2 - 6) / ext, 0.35, 1) : 1;
+  const a = a0 * fit;
+  const b = b0 * fit;
+  const iw = iw0 * fit;
+  const ih = ih0 * fit;
+
+  const marginTop = W > 0 ? Math.max(24, Math.round(up * fit - H / 2) + 16) : 52;
+  const marginBottom = W > 0 ? Math.max(24, Math.round(down * fit - H / 2) + 16) : 36;
+
+  const radius =
+    (Math.max(0, Math.min(20, rounded)) / 20) * (Math.min(iw, ih) / 2);
 
   return (
     <div
@@ -101,10 +141,10 @@ export default function SpinImage({
         zIndex: 1,
         width: "100%",
         height: "min(360px, 85vw)",
-        marginTop: "52px",
-        marginBottom: "36px",
+        marginTop,
+        marginBottom,
         overflow: "visible",
-        perspective: 1200,
+        perspective: PERSPECTIVE,
       }}
     >
       <div
@@ -119,28 +159,18 @@ export default function SpinImage({
           H > 0 &&
           items.map((src, i) => {
             const phi = (i / n) * Math.PI * 2 + orbitPhi;
-            const ex = a * Math.cos(phi);
-            const ey = b * Math.sin(phi);
-            const x = ex * cosT - ey * sinT;
-            const y = ex * sinT + ey * cosT;
-            const left = cx + x - iw / 2;
-            const top = cy + y - ih / 2;
-
-            // 0 — самая дальняя точка орбиты, 1 — самая ближняя
-            const z = a * Math.cos(phi) * kx + b * Math.sin(phi) * ky;
-            const depth = clamp((z / zAmp + 1) / 2, 0, 1);
-            const sf = path === "curved" ? 0.6 + 0.75 * depth : 1;
+            const p = place(phi, a, b);
 
             return (
               <div
                 key={`${src}-${i}`}
                 style={{
                   position: "absolute",
-                  left,
-                  top,
+                  left: cx + p.x - iw / 2,
+                  top: cy + p.y - ih / 2,
                   width: iw,
                   height: ih,
-                  transform: `rotateX(${yCurve}deg) rotateY(${-xCurve}deg) scale(${sf})`,
+                  transform: `rotateX(${yCurve}deg) rotateY(${-xCurve}deg) scale(${p.sf})`,
                   borderRadius: radius,
                   overflow: "hidden",
                   background: "var(--card)",
