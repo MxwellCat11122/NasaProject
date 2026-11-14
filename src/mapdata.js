@@ -71,7 +71,46 @@ export const MT = {
     km: "км",
     note: "Индекс = плотность аномалий региона × сезонный коэффициент месяца. Модель иллюстративная, это не оперативный прогноз: актуальные пожары смотрите в NASA FIRMS.",
     top: "Самые опасные регионы месяца",
-    dens: "плотность"
+    dens: "плотность",
+    pin: "Отметить очаг",
+    pinOn: "Клик по карте",
+    pinHint: "Режим отметки включён: кликните по территории Казахстана, чтобы прикрепить очаг.",
+    outkz: "Очаг можно прикрепить только внутри Казахстана.",
+    attached: "Прикреплённые очаги",
+    empty: "Очагов пока нет. Включите «Отметить очаг» и кликните по карте — по точке появятся сведения.",
+    coords: "Координаты",
+    lat: "Широта",
+    lon: "Долгота",
+    add: "Прикрепить",
+    remove: "Убрать",
+    clear: "Очистить",
+    report: "Сведения по очагу",
+    forMonth: "Расчёт для месяца",
+    biome: "Тип ландшафта",
+    biomes: ["Степь", "Пашня / сельхозпал", "Лес и горы", "Кустарники и пустыня"],
+    frp: "Оценка FRP",
+    conf: "Достоверность модели",
+    confs: ["Низкая", "Средняя", "Высокая"],
+    season: "Сезонный коэффициент",
+    advice: "Рекомендация",
+    adv: [
+      "Историческая активность низкая. Достаточно обычного мониторинга.",
+      "Умеренный риск. Сверьте точку с оперативными данными NASA FIRMS.",
+      "Высокий риск для этого месяца. Ограничьте открытый огонь и следите за ветром.",
+      "Очень высокий исторический риск. Точка в зоне частых крупных пожаров — приоритет для наблюдения."
+    ],
+    summary: "Сводка по очагам",
+    count: "Очагов",
+    avg: "Средний риск",
+    max: "Максимум",
+    highs: "Высокий и выше",
+    manual: "Или введите координаты",
+    bad: "Нужны числа: широта и долгота внутри Казахстана.",
+    limit: "Не больше 20 очагов. Уберите лишний, чтобы добавить новый.",
+    rank: "Место региона в месяце",
+    of: "из",
+    mw: "МВт",
+    focus: "Очаг"
   },
   en: {
     title: "Fire risk map",
@@ -90,7 +129,46 @@ export const MT = {
     km: "km",
     note: "Index = regional anomaly density × monthly seasonal factor. Illustrative model, not an operational forecast: see NASA FIRMS for live fires.",
     top: "Highest-risk regions this month",
-    dens: "density"
+    dens: "density",
+    pin: "Pin a fire",
+    pinOn: "Click the map",
+    pinHint: "Pin mode is on: click inside Kazakhstan to attach a fire focus.",
+    outkz: "A focus can only be pinned inside Kazakhstan.",
+    attached: "Pinned foci",
+    empty: "No foci yet. Turn on “Pin a fire” and click the map — details will appear for that point.",
+    coords: "Coordinates",
+    lat: "Latitude",
+    lon: "Longitude",
+    add: "Attach",
+    remove: "Remove",
+    clear: "Clear",
+    report: "Focus details",
+    forMonth: "Calculated for",
+    biome: "Landscape",
+    biomes: ["Steppe", "Cropland / burning", "Forest and mountains", "Shrub and desert"],
+    frp: "Estimated FRP",
+    conf: "Model confidence",
+    confs: ["Low", "Medium", "High"],
+    season: "Seasonal factor",
+    advice: "Guidance",
+    adv: [
+      "Historical activity is low. Routine monitoring is enough.",
+      "Moderate risk. Check the point against live NASA FIRMS data.",
+      "High risk this month. Limit open flame and watch the wind.",
+      "Very high historical risk. This point sits in a zone of frequent large fires — watch it first."
+    ],
+    summary: "Foci summary",
+    count: "Foci",
+    avg: "Average risk",
+    max: "Maximum",
+    highs: "High or above",
+    manual: "Or enter coordinates",
+    bad: "Enter numeric latitude and longitude inside Kazakhstan.",
+    limit: "20 foci maximum. Remove one before adding another.",
+    rank: "Region rank this month",
+    of: "of",
+    mw: "MW",
+    focus: "Focus"
   },
   kz: {
     title: "Ошақтардың қауіп картасы",
@@ -109,6 +187,69 @@ export const MT = {
     km: "км",
     note: "Индекс = аймақтың аномалия тығыздығы × айдың маусымдық коэффициенті. Модель иллюстрациялық болып табылады, бұл жедел болжам емес: нақты өрттерді NASA FIRMS сайтынан қараңыз.",
     top: "Айдың ең қауіпті аймақтары",
-    dens: "тығыздық"
+    dens: "тығыздық",
+    pin: "Ошақ белгілеу",
+    pinOn: "Картаға басыңыз",
+    pinHint: "Белгілеу режимі қосулы: Қазақстан аумағына басып, ошақты бекітіңіз.",
+    outkz: "Ошақты тек Қазақстан ішінде бекітуге болады.",
+    attached: "Бекітілген ошақтар",
+    empty: "Ошақтар әзір жоқ. «Ошақ белгілеу» режимін қосып, картаға басыңыз — нүкте бойынша мәлімет шығады.",
+    coords: "Координаттар",
+    lat: "Ендік",
+    lon: "Бойлық",
+    add: "Бекіту",
+    remove: "Алу",
+    clear: "Тазалау",
+    report: "Ошақ бойынша мәлімет",
+    forMonth: "Есеп айы",
+    biome: "Ландшафт түрі",
+    biomes: ["Дала", "Егістік / өртеу", "Орман және тау", "Бұта және шөл"],
+    frp: "FRP бағасы",
+    conf: "Модель сенімділігі",
+    confs: ["Төмен", "Орташа", "Жоғары"],
+    season: "Маусымдық коэффициент",
+    advice: "Ұсыным",
+    adv: [
+      "Тарихи белсенділік төмен. Қалыпты мониторинг жеткілікті.",
+      "Орташа қауіп. Нүктені NASA FIRMS жедел деректерімен салыстырыңыз.",
+      "Бұл айда қауіп жоғары. Ашық отты шектеп, желді бақылаңыз.",
+      "Тарихи қауіп өте жоғары. Нүкте ірі өрттер жиі болатын аймақта — бақылау басымдығы."
+    ],
+    summary: "Ошақтар жиынтығы",
+    count: "Ошақ",
+    avg: "Орташа қауіп",
+    max: "Максимум",
+    highs: "Жоғары және одан да жоғары",
+    manual: "Немесе координат енгізіңіз",
+    bad: "Қазақстан ішіндегі ендік пен бойлық сандарын енгізіңіз.",
+    limit: "Ең көбі 20 ошақ. Жаңасын қосу үшін біреуін алып тастаңыз.",
+    rank: "Аймақтың айдағы орны",
+    of: "/",
+    mw: "МВт",
+    focus: "Ошақ"
   }
+};
+
+const BIOME_I = {
+  "СКО": 1, "КОС": 1, "АКМ": 1, "ПВЛ": 1, "АСТ": 1,
+  "ЗКО": 0, "АКТ": 0, "КРГ": 0, "УЛЫ": 0, "АТР": 0,
+  "АБА": 2, "ВКО": 2, "АЛМ": 2, "ЖЕТ": 2, "АЛГ": 2,
+  "ШЫМ": 3, "КЗО": 3, "ЖАМ": 3, "ТУР": 3, "МАН": 3
+};
+
+export const nearestRegion = ll => {
+  let best = null;
+  REGIONS.forEach(r => {
+    const d = dist(ll, r.ll);
+    if (!best || d < best.d) best = { r, d };
+  });
+  return best;
+};
+
+export const focusBrief = (region, month) => {
+  const v = risk(region, month);
+  const s = season(month);
+  const frp = Math.max(4, Math.round((10 + region.d * 58) * (0.55 + s * 0.85)));
+  const conf = region.d >= 0.5 ? 2 : region.d >= 0.25 ? 1 : 0;
+  return { v, lv: level(v), season: s, frp, conf, biome: BIOME_I[region.code] ?? 0 };
 };
